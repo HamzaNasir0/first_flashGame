@@ -1,13 +1,14 @@
 // Variables for the game
 let dealerHand = [];
 let playerHand = [];
-let profit = 0;
+let profit = 0; // Tracks the total profit (net gains/losses)
+let totalBalance = 0; // Tracks the current balance for placing bets
 let currentBet = 0; // Track the current bet for this round
 let dealerHiddenCard; // Store the hidden dealer card
 let wins = 0;
 let losses = 0;
 let totalBets = 0;
-const profitDisplay = document.getElementById("total-profit");
+let gameInProgress = false; // New flag to track if a game is in progress
 
 // Elements
 const dealerCards = document.getElementById("dealer-cards");
@@ -18,6 +19,8 @@ const resultDisplay = document.getElementById("result");
 const hitButton = document.getElementById("hit-button");
 const standButton = document.getElementById("stand-button");
 const restartButton = document.getElementById("restart-button");
+const profitDisplay = document.getElementById("total-profit");
+const balanceDisplay = document.getElementById("total-balance"); // Display total balance
 
 // Modal Elements
 const modal = document.getElementById("modal");
@@ -39,8 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userIndex !== null && userIndex >= 0 && userIndex < userProfiles.length) {
         const currentUserProfile = userProfiles[userIndex];
         profit = parseFloat(currentUserProfile.totalProfit) || 0;
+        totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
         wins = parseInt(currentUserProfile.totalWins) || 0;
-        losses = parseInt(currentUserProfile.totalLosses) || 0;
+        losses = parseFloat(currentUserProfile.totalLosses) || 0;
         totalBets = parseFloat(currentUserProfile.totalBets) || 0;
     }
 
@@ -57,7 +61,8 @@ function startGame() {
     resultDisplay.textContent = "";
     enableButtons();
     currentBet = 0; // Reset the current bet at the beginning of each round
-    bettingArea.innerHTML = `Betting Area: Drop Your Bets Here!`;
+    bettingArea.innerHTML = `Betting Area: Place Your Bets!`;
+    gameInProgress = true; // Game is now in progress
     
     // Deal cards with delay
     dealInitialCards();
@@ -180,11 +185,12 @@ hitButton.addEventListener("click", function () {
     displayHands();
     if (calculateHandValue(playerHand) > 21) {
         announceWinner("dealer");
-        losses += 1;
-        updateProfit(-currentBet);
+        losses += currentBet;
+        updateBalance(-currentBet);
         updateStatisticsDisplay();
         updateUserProfile();
         disableButtons();
+        gameInProgress = false; // Game ends after player busts
     }
 });
 
@@ -210,23 +216,32 @@ standButton.addEventListener("click", function () {
     if (dealerValue > 21 || playerValue > dealerValue) {
         announceWinner("player");
         wins += 1;
-        updateProfit(currentBet);
+        updateBalance(currentBet * 2);
     } else if (dealerValue > playerValue) {
         announceWinner("dealer");
-        losses += 1;
-        updateProfit(-currentBet);
+        losses += currentBet;
+        updateBalance(-currentBet);
     } else {
         announceWinner("tie");
+        totalBalance += currentBet; // Player gets their bet back in case of a tie
     }
 
     updateStatisticsDisplay();
     updateUserProfile();
     disableButtons();
+    gameInProgress = false; // Game ends after player stands
 });
 
 // Restart functionality
 restartButton.addEventListener("click", function () {
-    startGame();
+    // Refund the bet only if the game is still in progress
+    if (gameInProgress && currentBet > 0) {
+        totalBalance += currentBet; // Refund the bet
+        currentBet = 0; // Reset the current bet after refund
+    }
+
+    updateStatisticsDisplay(); // Update to show the correct balance after refund (if applicable)
+    startGame(); // Restart the game
 });
 
 // Announce winner and play sound effects
@@ -245,19 +260,26 @@ function announceWinner(winner) {
     }
 }
 
-// Update profit and display it
-function updateProfit(amount) {
-    profit += amount;
-    totalBets += Math.abs(amount);
+// Update profit and balance
+function updateBalance(amount) {
+    totalBalance += amount;
+    if (totalBalance < 0) {
+        totalBalance = 0; // Prevent balance from going below zero
+    }
+
+    if (amount > 0) {
+        profit += (amount - currentBet); // Only count winnings as profit
+    }
     updateStatisticsDisplay();
-    localStorage.setItem("profit", profit);
 }
 
+// Update statistics display
 function updateStatisticsDisplay() {
-    profitDisplay.textContent = `Total Profit: £${profit}`;
+    profitDisplay.textContent = `Total Profit: £${profit.toFixed(2)}`;
+    balanceDisplay.textContent = `Total Balance: £${totalBalance.toFixed(2)}`;
     document.getElementById("total-wins").textContent = `Total Wins: ${wins}`;
-    document.getElementById("total-losses").textContent = `Total Losses: ${losses}`;
-    document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets}`;
+    document.getElementById("total-losses").textContent = `Total Losses: £${losses.toFixed(2)}`;
+    document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets.toFixed(2)}`;
 }
 
 // Enable/Disable buttons
@@ -274,62 +296,32 @@ function enableButtons() {
 // Betting area element
 const bettingArea = document.getElementById("chips");
 
-// Add event listeners for each chip (drag & click for mobile fallback)
+// Replace drag and drop with tap functionality
 document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('dragstart', dragStart);
-    chip.addEventListener('click', handleChipClick); // Add click event for mobile fallback
+    chip.addEventListener('click', () => {
+        const betValue = parseInt(chip.getAttribute('data-value'));
+
+        // Ensure user cannot bet more than they have
+        if (currentBet + betValue > totalBalance) {
+            openModal("You don't have enough balance to place this bet.");
+            return;
+        }
+
+        currentBet += betValue;
+
+        // Deduct the bet amount from total balance
+        totalBalance -= betValue;
+
+        // Ensure total balance is not negative
+        if (totalBalance < 0) {
+            totalBalance = 0;
+        }
+
+        // Display updated bet amount and balance
+        bettingArea.innerHTML = `Betting Area: £${currentBet}`;
+        updateStatisticsDisplay();
+    });
 });
-
-// Handle chip click for mobile
-function handleChipClick(event) {
-    const chipElement = event.target;
-    const betValue = parseInt(chipElement.getAttribute('data-value'));
-    currentBet += betValue;
-
-    // Display updated bet amount
-    bettingArea.innerHTML = `Betting Area: £${currentBet}`;
-}
-// Add drag and drop event listeners to the betting area
-bettingArea.addEventListener('dragover', dragOver);
-bettingArea.addEventListener('drop', drop);
-bettingArea.addEventListener('dragleave', dragLeave);
-
-// Drag start event for chips
-function dragStart(event) {
-    event.dataTransfer.setData('text/plain', event.target.id);
-    setTimeout(() => {
-        event.target.style.opacity = '0.5'; // Reduce opacity while dragging
-    }, 0);
-}
-
-// Drag over event for betting area
-function dragOver(event) {
-    event.preventDefault(); // Necessary to allow a drop
-    bettingArea.classList.add('drag-over');
-}
-
-// Drop event for betting area
-function drop(event) {
-    event.preventDefault();
-    const chipId = event.dataTransfer.getData('text');
-    const chipElement = document.getElementById(chipId);
-    
-    // Increase the current bet amount based on the chip value
-    const betValue = parseInt(chipElement.getAttribute('data-value'));
-    currentBet += betValue;
-
-    // Display updated bet amount
-    bettingArea.innerHTML = `Betting Area: £${currentBet}`;
-    bettingArea.classList.remove('drag-over');
-
-    // Reset the chip's opacity after drop
-    chipElement.style.opacity = '1';
-}
-
-// Drag leave event for betting area
-function dragLeave(event) {
-    bettingArea.classList.remove('drag-over');
-}
 
 // Update the user's profile statistics in localStorage
 function updateUserProfile() {
@@ -338,9 +330,10 @@ function updateUserProfile() {
 
     if (userIndex !== null && userIndex >= 0 && userIndex < userProfiles.length) {
         userProfiles[userIndex].totalProfit = profit.toFixed(2);
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
+        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
         userProfiles[userIndex].totalWins = wins;
-        userProfiles[userIndex].totalLosses = losses;
+        userProfiles[userIndex].totalLosses = losses.toFixed(2);
+        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
 
         localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
     }
