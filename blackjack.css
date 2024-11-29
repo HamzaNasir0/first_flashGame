@@ -155,15 +155,12 @@ body {
 }
 
 .chip {
-    width: 40px; /* Reduced size for mobile */
-    height: 40px;
-    margin: 5px;
-    cursor: grab;
-    transition: transform 0.3s ease-in-out;
+    cursor: pointer; /* Change to pointer to indicate clickability */
+    transition: transform 0.2s ease-in-out;
 }
 
 .chip:active {
-    cursor: grabbing;
+    transform: scale(1.1); /* Provide visual feedback for tap */
 }
 
 #chips {
