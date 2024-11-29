@@ -274,11 +274,21 @@ function enableButtons() {
 // Betting area element
 const bettingArea = document.getElementById("chips");
 
-// Add event listeners for each chip
+// Add event listeners for each chip (drag & click for mobile fallback)
 document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('dragstart', dragStart);
+    chip.addEventListener('click', handleChipClick); // Add click event for mobile fallback
 });
 
+// Handle chip click for mobile
+function handleChipClick(event) {
+    const chipElement = event.target;
+    const betValue = parseInt(chipElement.getAttribute('data-value'));
+    currentBet += betValue;
+
+    // Display updated bet amount
+    bettingArea.innerHTML = `Betting Area: £${currentBet}`;
+}
 // Add drag and drop event listeners to the betting area
 bettingArea.addEventListener('dragover', dragOver);
 bettingArea.addEventListener('drop', drop);
