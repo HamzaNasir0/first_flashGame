@@ -6,237 +6,133 @@ body {
     text-align: center;
     margin: 0;
     min-height: 100vh;
-    padding-top: 70px; /* Reduced padding to fit the fixed navigation bar better */
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column; /* Adjust flex direction for mobile layout */
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0; /* Remove extra padding to fit everything */
 }
 
 /* Navigation Bar Styling */
 .navbar {
-    background-color: #333; /* Dark background color for the nav bar */
-    padding: 5px 20px; /* Adjusted padding for a more compact look */
-    color: #fff;
+    background-color: #333;
+    padding: 10px 20px;
     position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-    z-index: 1000; /* Ensure it stays above all other elements */
-}
-
-.nav-container {
+    z-index: 1000;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 .nav-logo {
-    font-size: 24px; /* Adjust font size for balance */
+    font-size: 20px;
     font-weight: bold;
-    color: #ffd700; /* Gold color for better visibility and more thematic */
+    color: #ffd700;
     text-decoration: none;
 }
 
+.nav-toggle {
+    display: none;
+}
+
 .nav-menu {
+    display: flex;
     list-style: none;
-    display: flex; /* Ensure that menu items are displayed in flex mode on larger screens */
-    gap: 15px; /* Reduced gap to keep links closer together */
     margin: 0;
     padding: 0;
 }
 
-.nav-item {
-    position: relative;
-}
-
-/* Mobile Menu Styling (Dropdown) */
-.nav-menu {
-    display: flex; /* Make sure the nav menu is visible by default on larger screens */
-}
-
-.nav-menu.active {
-    display: flex; /* Ensure it's also flex when it's active */
+.nav-menu li {
+    margin-left: 15px;
 }
 
 .nav-link {
     text-decoration: none;
     color: #fff;
-    font-size: 18px;
-    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    padding: 10px 15px; /* Increase padding for a better touch target on mobile */
-    border-radius: 4px; /* Add slight rounding to the menu links */
-}
-
-.nav-link:hover {
-    color: #ffd700; /* Highlight color on hover */
-    background-color: #333; /* Slightly darker background on hover for contrast */
-}
-
-/* Mobile Menu Icon (Hamburger) */
-.nav-toggle {
-    display: none;
-    cursor: pointer;
-    z-index: 1001; /* Keep it above other elements */
-}
-
-.burger {
-    width: 25px;
-    height: 3px;
-    background-color: #fff;
-    display: block;
-    margin: 5px auto;
-    transition: all 0.3s ease-in-out;
-}
-
-@media (max-width: 768px) {
-    .nav-toggle {
-        display: block;
-    }
-
-    .nav-menu {
-        display: none; /* Hide the menu by default on mobile */
-        flex-direction: column;
-        background-color: #444; /* Darker color to match the navbar */
-        position: absolute;
-        top: 50px; /* Positioned just below the nav bar */
-        right: 10px; /* Positioned closer to the hamburger icon */
-        width: 180px;
-        padding: 10px;
-        border-radius: 8px; /* Add rounded corners for a polished look */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
-        z-index: 1001; /* Ensure the menu appears above other content */
-    }
-
-    .nav-menu.active {
-        display: flex; /* Make sure to display the menu in flex direction when activated */
-    }
-
-    .nav-container {
-        position: relative;
-    }
+    font-size: 14px;
 }
 
 /* Main Game Area Styling */
 .blackjack-game {
-    background: radial-gradient(circle at center, #006400, #004d00); /* Gradient for felt look */
-    padding: 20px; /* Reduced padding for mobile-friendly appearance */
-    border-radius: 25px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* Dark shadow for depth */
-    width: 90%; /* Make the width more flexible for smaller screens */
-    max-width: 400px;
-    text-align: center;
-    position: relative;
-    margin-top: 20px; /* Add some margin to create space below the nav bar */
-}
-
-/* Dealer and Player Hands Section */
-#dealer-hand, #player-hand {
-    margin-top: 15px;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.3); /* Dark overlay for card area */
+    margin-top: 70px; /* Adjust for navbar height */
+    padding: 10px;
+    background: radial-gradient(circle at center, #006400, #004d00);
     border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    min-height: 80px; /* Provide space for cards */
-}
-
-#dealer-total, #player-total {
-    margin-top: 5px;
-    font-size: 16px;
-    color: #e0e0e0;
-}
-
-/* Chips and Betting Area Styling */
-#chips-area {
-    margin: 15px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 95%; /* Reduce width for better fit */
+    width: 350px; /* Fixed size for consistency */
+    margin: auto;
     text-align: center;
+}
+
+/* Dealer and Player Hands */
+.hand {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    min-height: 50px;
+}
+
+/* Card and Betting Area */
+.card {
+    width: 30px; /* Smaller card sizes */
+    height: 50px;
+    margin: 2px;
+    border-radius: 5px;
+}
+
+#chips-area {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px; /* Space between chips */
 }
 
 .chip {
-    cursor: pointer; /* Change to pointer to indicate clickability */
-    transition: transform 0.2s ease-in-out;
+    width: 30px;
+    height: 30px;
+    cursor: grab;
 }
 
-.chip:active {
-    transform: scale(1.1); /* Provide visual feedback for tap */
-}
-
-#chips {
-    margin-top: 15px;
-    padding: 10px;
+.betting-area {
+    margin-top: 10px;
+    padding: 5px;
+    font-size: 12px;
     background-color: #8b0000; /* Dark red for betting area */
-    border-radius: 15px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    font-size: 16px;
+    border-radius: 10px;
     font-weight: bold;
-    color: #ffffff;
-    min-height: 60px; /* Reduced height for smaller devices */
 }
 
-/* Input and Controls Styling */
-.controls {
-    margin-top: 20px;
-}
-
-button {
-    padding: 8px 16px; /* Reduced padding for smaller devices */
+/* Buttons */
+.controls button {
+    padding: 5px 10px;
+    font-size: 12px;
     margin: 5px;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     background-color: #8fbc8f;
     color: #ffffff;
-    font-size: 14px; /* Slightly smaller font for better fit */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
 }
 
-button:hover {
+.controls button:hover {
     background-color: #3cb371;
     transform: scale(1.05);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Cards Styling */
-.card {
-    display: inline-block;
-    width: 40px; /* Reduced size for mobile */
-    height: 60px;
-    margin: 3px; /* Reduced margin for compact layout */
-    border-radius: 10px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-10px) scale(1.05);
-}
-
-/* Keyframes for Card Animation */
-@keyframes draw-card {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
 }
 
 /* Result and Profit Display Styling */
 #result {
-    margin-top: 15px;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
-    transition: color 0.3s ease-in-out;
+    margin-top: 10px;
 }
 
 #total-profit {
-    margin-top: 10px;
-    font-size: 16px; /* Adjusted font size for readability on small screens */
+    font-size: 14px;
     font-weight: bold;
     color: #ffd700; /* Gold color for profit display */
 }
@@ -258,11 +154,10 @@ button:hover {
 .modal-content {
     background-color: #fefefe;
     border-radius: 10px;
-    padding: 15px; /* Reduced padding for mobile */
+    padding: 15px;
     max-width: 90%;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    animation: modal-fade-in 0.3s ease;
 }
 
 /* Close Button Styling for Modal */
@@ -281,18 +176,29 @@ button:hover {
     color: #000;
 }
 
-.hidden {
-    display: none;
-}
-
-
-@keyframes modal-fade-in {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
+/* Responsive Design */
+@media (max-width: 768px) {
+    .blackjack-game {
+        width: 90%;
+        padding: 10px;
     }
-    to {
-        opacity: 1;
-        transform: scale(1);
+
+    .nav-link {
+        font-size: 12px;
+    }
+
+    .chip {
+        width: 25px;
+        height: 25px;
+    }
+
+    .card {
+        width: 25px;
+        height: 40px;
+    }
+
+    .controls button {
+        padding: 5px 8px;
+        font-size: 12px;
     }
 }
