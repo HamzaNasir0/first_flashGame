@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Suite - Rocket Crash</title>
+    <link rel="stylesheet" href="rocket-crash.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="welcome.html" class="nav-logo">Game Suite</a>
+            <div class="nav-toggle" id="mobile-menu">
+                <span class="burger"></span>
+                <span class="burger"></span>
+                <span class="burger"></span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="blackjack.html" class="nav-link">Blackjack</a></li>
+                <!--
+                <li class="nav-item"><a href="poker.html" class="nav-link">Poker</a></li>
+                <li class="nav-item"><a href="slots.html" class="nav-link">Slots</a></li>
+                -->
+
+                <li class="nav-item"><a href="rocket-crash.html" class="nav-link">Rocket Crash</a></li>
+                <li class="nav-item"><a href="welcome.html" class="nav-link">User</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Rocket Crash Game Main Section -->
+    <div class="rocket-crash-game">
+        <h1>Rocket Crash Game</h1>
+
+        <!-- Graph Container -->
+        <div id="graph-container">
+            <canvas id="multiplier-graph" width="400" height="200"></canvas>
+            <div id="past-crashes" class="past-crashes">
+                <span>Past Crashes: </span>
+                <span id="past-crash-list"></span>
+            </div>
+        </div>
+
+        <!-- Multiplier Display -->
+        <p id="multiplier" class="multiplier-text">0.00x</p>
+
+        <!-- Input and Buttons for Bets and Actions -->
+        <input type="number" id="bet-amount" placeholder="Enter Bet Amount">
+        <button id="place-bet-button">Place Bet</button>
+        <button id="cash-out-button" disabled>Cash Out</button>
+
+        <!-- New Buttons for Skipping and Watching -->
+        <button id="skip-to-crash-button" disabled>Skip to Crash</button>
+        <button id="watch-only-button">Watch Rocket</button>
+
+        <!-- Result and Profit Display -->
+        <div id="result"></div>
+        <div id="crash-point" class="crash-point-text"></div>
+        <div id="rocket-profit">Total Profit: £0</div>
+    </div>
+
+    <!-- JavaScript Library for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Rocket Crash JavaScript -->
+    <script src="rocket-crash.js"></script>
+</body>
+
+</html>

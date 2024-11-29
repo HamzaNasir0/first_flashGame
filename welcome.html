@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Suite - Welcome</title>
+    <link rel="stylesheet" href="welcome.css"> <!-- Link to the CSS for welcome screen styling -->
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <span class="nav-logo">Game Suite</span>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <button id="logout-button" class="nav-link">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Welcome Section -->
+    <div class="welcome-container">
+        <h1>Welcome, <span id="username"></span>!</h1>
+        <div class="user-stats">
+            <p><strong>Total Bets:</strong> £<span id="total-bets">0</span></p>
+            <p><strong>Total Wins:</strong> £<span id="total-wins">0</span></p>
+            <p><strong>Total Losses:</strong> £<span id="total-losses">0</span></p>
+            <p><strong>Total Profit:</strong> £<span id="total-profit">0</span></p>
+        </div>
+        <p>Select a game to play:</p>
+
+        <!-- Game Options -->
+        <div class="game-options">
+            <div class="game-card" id="blackjack-game">
+                <img src="img/blackjack_logo.png" alt="Blackjack" class="game-image">
+                <button class="game-button" onclick="playGame('blackjack.html')">Play Blackjack</button>
+                <!-- Updated to link to blackjack.html -->
+            </div>
+
+            <!--
+<div class="game-card" id="poker-game">
+    <img src="img/poker.png" alt="Poker" class="game-image">
+    <button class="game-button" onclick="playGame('poker.html')">Play Poker</button>
+</div>
+
+<div class="game-card" id="slots-game">
+    <img src="img/slots.png" alt="Slots" class="game-image">
+    <button class="game-button" onclick="playGame('slots.html')">Play Slots</button>
+</div>
+-->
+
+
+            <div class="game-card" id="rocket-crash-game">
+                <img src="img/rocket_logo.webp" alt="Rocket Crash" class="game-image">
+                <button class="game-button" onclick="playGame('rocket-crash.html')">Play Rocket Crash</button>
+                <!-- Links to rocket-crash.html -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="welcome.js"></script>
+    <script>
+        // JavaScript function to navigate to the selected game page
+        function playGame(gameUrl) {
+            // Save user stats or other data before leaving
+            window.location.href = gameUrl;
+        }
+    </script>
+</body>
+
+</html>

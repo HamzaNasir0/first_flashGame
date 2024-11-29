@@ -1,0 +1,301 @@
+/* General Page Styling */
+body {
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    background: #2e8b57; /* Dark green background for the entire page */
+    color: #ffffff;
+    text-align: center;
+    margin: 0;
+    min-height: 100vh;
+    padding-top: 70px; /* Reduced padding to fit the fixed navigation bar better */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* Adjust flex direction for mobile layout */
+}
+
+/* Navigation Bar Styling */
+.navbar {
+    background-color: #333; /* Dark background color for the nav bar */
+    padding: 5px 20px; /* Adjusted padding for a more compact look */
+    color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+    z-index: 1000; /* Ensure it stays above all other elements */
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-logo {
+    font-size: 24px; /* Adjust font size for balance */
+    font-weight: bold;
+    color: #ffd700; /* Gold color for better visibility and more thematic */
+    text-decoration: none;
+}
+
+.nav-menu {
+    list-style: none;
+    display: flex; /* Ensure that menu items are displayed in flex mode on larger screens */
+    gap: 15px; /* Reduced gap to keep links closer together */
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    position: relative;
+}
+
+/* Mobile Menu Styling (Dropdown) */
+.nav-menu {
+    display: flex; /* Make sure the nav menu is visible by default on larger screens */
+}
+
+.nav-menu.active {
+    display: flex; /* Ensure it's also flex when it's active */
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    padding: 10px 15px; /* Increase padding for a better touch target on mobile */
+    border-radius: 4px; /* Add slight rounding to the menu links */
+}
+
+.nav-link:hover {
+    color: #ffd700; /* Highlight color on hover */
+    background-color: #333; /* Slightly darker background on hover for contrast */
+}
+
+/* Mobile Menu Icon (Hamburger) */
+.nav-toggle {
+    display: none;
+    cursor: pointer;
+    z-index: 1001; /* Keep it above other elements */
+}
+
+.burger {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    display: block;
+    margin: 5px auto;
+    transition: all 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none; /* Hide the menu by default on mobile */
+        flex-direction: column;
+        background-color: #444; /* Darker color to match the navbar */
+        position: absolute;
+        top: 50px; /* Positioned just below the nav bar */
+        right: 10px; /* Positioned closer to the hamburger icon */
+        width: 180px;
+        padding: 10px;
+        border-radius: 8px; /* Add rounded corners for a polished look */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+        z-index: 1001; /* Ensure the menu appears above other content */
+    }
+
+    .nav-menu.active {
+        display: flex; /* Make sure to display the menu in flex direction when activated */
+    }
+
+    .nav-container {
+        position: relative;
+    }
+}
+
+/* Main Game Area Styling */
+.blackjack-game {
+    background: radial-gradient(circle at center, #006400, #004d00); /* Gradient for felt look */
+    padding: 20px; /* Reduced padding for mobile-friendly appearance */
+    border-radius: 25px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* Dark shadow for depth */
+    width: 90%; /* Make the width more flexible for smaller screens */
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    margin-top: 20px; /* Add some margin to create space below the nav bar */
+}
+
+/* Dealer and Player Hands Section */
+#dealer-hand, #player-hand {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.3); /* Dark overlay for card area */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    min-height: 80px; /* Provide space for cards */
+}
+
+#dealer-total, #player-total {
+    margin-top: 5px;
+    font-size: 16px;
+    color: #e0e0e0;
+}
+
+/* Chips and Betting Area Styling */
+#chips-area {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.chip {
+    width: 40px; /* Reduced size for mobile */
+    height: 40px;
+    margin: 5px;
+    cursor: grab;
+    transition: transform 0.3s ease-in-out;
+}
+
+.chip:active {
+    cursor: grabbing;
+}
+
+#chips {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #8b0000; /* Dark red for betting area */
+    border-radius: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    min-height: 60px; /* Reduced height for smaller devices */
+}
+
+/* Input and Controls Styling */
+.controls {
+    margin-top: 20px;
+}
+
+button {
+    padding: 8px 16px; /* Reduced padding for smaller devices */
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #8fbc8f;
+    color: #ffffff;
+    font-size: 14px; /* Slightly smaller font for better fit */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #3cb371;
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Cards Styling */
+.card {
+    display: inline-block;
+    width: 40px; /* Reduced size for mobile */
+    height: 60px;
+    margin: 3px; /* Reduced margin for compact layout */
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.05);
+}
+
+/* Keyframes for Card Animation */
+@keyframes draw-card {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Result and Profit Display Styling */
+#result {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+}
+
+#total-profit {
+    margin-top: 10px;
+    font-size: 16px; /* Adjusted font size for readability on small screens */
+    font-weight: bold;
+    color: #ffd700; /* Gold color for profit display */
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    border-radius: 10px;
+    padding: 15px; /* Reduced padding for mobile */
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: modal-fade-in 0.3s ease;
+}
+
+/* Close Button Styling for Modal */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: #aaa;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #000;
+}
+
+.hidden {
+    display: none;
+}
+
+
+@keyframes modal-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
