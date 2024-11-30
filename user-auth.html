@@ -8,22 +8,35 @@
 </head>
 <body>
     <div class="container">
-        <div id="register-section">
-            <h2>Register</h2>
-            <input type="text" id="register-username" placeholder="Username" required>
-            <input type="password" id="register-password" placeholder="Password" required>
-            <button id="register-button">Register</button>
+        <div class="form-card">
+            <h2 class="form-title">Register</h2>
+            <input type="text" id="register-username" class="form-input" placeholder="Username" required>
+            <input type="password" id="register-password" class="form-input" placeholder="Password" required>
+            <button id="register-button" class="form-button">Register</button>
         </div>
 
-        <div id="login-section">
-            <h2>Login</h2>
-            <input type="text" id="login-username" placeholder="Username" required>
-            <input type="password" id="login-password" placeholder="Password" required>
-            <button id="login-button">Login</button>
+        <div class="divider">
+            <span class="divider-text">OR</span>
         </div>
 
-        <div id="message"></div>
+        <div class="form-card">
+            <h2 class="form-title">Login</h2>
+            <input type="text" id="login-username" class="form-input" placeholder="Username" required>
+            <input type="password" id="login-password" class="form-input" placeholder="Password" required>
+            <button id="login-button" class="form-button">Login</button>
+        </div>
+
+        <div class="divider">
+            <span class="divider-text">OR</span>
+        </div>
+
+        <div class="form-card">
+            <button id="guest-button" class="form-button guest-button">Guest Mode</button>
+        </div>
+        
+        <div id="message" class="message"></div>
     </div>
+
     <script src="user-auth.js"></script>
 </body>
 </html>
