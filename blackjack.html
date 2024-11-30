@@ -61,10 +61,17 @@
 
         <!-- Betting Chips Section -->
         <section id="chips-area" class="chips-section">
-            <img id="chip-50" class="chip" src="img/chip_red_top.png" data-value="50" alt="£50 Chip" draggable="true">
-            <img id="chip-100" class="chip" src="img/chip_black_top.png" data-value="100" alt="£100 Chip" draggable="true">
-            <img id="chip-500" class="chip" src="img/chip_green_top.png" data-value="500" alt="£500 Chip" draggable="true">
+            <img id="chip-1" class="chip" src="img/chip_smallblind_top.png" data-value="1" alt="£1 Chip" draggable="true">
+            <img id="chip-5" class="chip" src="img/chip_white_top.png" data-value="5" alt="£5 Chip" draggable="true">
+            <img id="chip-10" class="chip" src="img/chip_pink_top.png" data-value="10" alt="£10 Chip" draggable="true">
+            <img id="chip-25" class="chip" src="img/chip_biege_top.png" data-value="25" alt="£25 Chip" draggable="true">
+            <img id="chip-50" class="chip" src="img/chip_gray_top.png" data-value="50" alt="£50 Chip" draggable="true">
+            <img id="chip-100" class="chip" src="img/chip_green_top.png" data-value="100" alt="£100 Chip" draggable="true">
+            <img id="chip-500" class="chip" src="img/chip_purple_top.png" data-value="500" alt="£500 Chip" draggable="true">
+            <img id="chip-all-in" class="chip" src="img/chip_red_top.png" data-value="all" alt="All-in Chip"
+                draggable="true">
         </section>
+
 
         <!-- Betting Area -->
         <section id="chips" class="betting-area">
@@ -73,8 +80,12 @@
 
         <!-- Control Buttons -->
         <section class="controls">
-            <button id="hit-button">Hit</button>
-            <button id="stand-button">Stand</button>
+            <!-- Play Button: Appears after placing bets -->
+            <button id="play-button" class="play-button" style="display: none;">Play</button>
+
+            <!-- Hit and Stand Buttons: Only show after clicking Play -->
+            <button id="hit-button" style="display: none;">Hit</button>
+            <button id="stand-button" style="display: none;">Stand</button>
             <button id="restart-button">Restart</button>
         </section>
 
