@@ -1,66 +1,206 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const usernameDisplay = document.getElementById("username");
-    const totalBetsDisplay = document.getElementById("total-bets");
-    const totalWinsDisplay = document.getElementById("total-wins");
-    const totalLossesDisplay = document.getElementById("total-losses");
-    const totalBalanceDisplay = document.getElementById("total-balance");
-    const totalProfitDisplay = document.getElementById("total-profit");
-    const logoutButton = document.getElementById("logout-button");
+document.addEventListener('DOMContentLoaded', () => {
+    // Mobile Navigation Toggle
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navMenu = document.getElementById('nav-menu');
+
+    mobileMenu.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+    });
+
+    // DOM Elements
+    const usernameDisplay = document.getElementById('username');
+    const totalBalanceDisplay = document.getElementById('total-balance');
+    const spinButton = document.getElementById('spin-button');
+    const logoutButton = document.getElementById('logout-button');
+    const blackjackGameButton = document.getElementById('blackjack-game');
+    const rocketCrashGameButton = document.getElementById('rocket-crash-game');
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const ctx = wheelCanvas.getContext('2d');
+
+    // Reward Modal Elements
+    const rewardModal = document.getElementById('reward-modal');
+    const rewardMessage = document.getElementById('reward-message');
+    const closeRewardModalButton = document.getElementById('close-reward-modal');
+    const rewardOkButton = document.getElementById('reward-ok-button');
 
     // Load profiles and get current user index
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = localStorage.getItem("currentUserIndex");
+    const userProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
+    const userIndex = parseInt(localStorage.getItem('currentUserIndex'), 10);
 
-    // Validate the user index
-    if (userIndex === null || userIndex < 0 || userIndex >= userProfiles.length) {
-        alert("Invalid user. Please log in again.");
-        window.location.href = "user-auth.html"; // Redirect to login page
+    if (isNaN(userIndex) || userIndex < 0 || userIndex >= userProfiles.length) {
+        alert('Invalid user. Please log in again.');
+        window.location.href = 'user-auth.html';
         return;
     }
 
-    // Get current user's profile
     const currentUserProfile = userProfiles[userIndex];
-    usernameDisplay.textContent = currentUserProfile.username;
 
-    // **Assign a Random Starting Balance if Not Already Assigned**
-    if (currentUserProfile.startingBalance === undefined || currentUserProfile.startingBalance === null) {
-        const startingBalances = [100, 500, 1000];
-        const randomIndex = Math.floor(Math.random() * startingBalances.length);
-        const randomBalance = startingBalances[randomIndex];
-
-        currentUserProfile.startingBalance = randomBalance;
-        currentUserProfile.totalBalance = parseFloat(randomBalance.toFixed(2));
-        currentUserProfile.totalProfit = 0.0;
-        currentUserProfile.totalBets = 0.0;
-        currentUserProfile.totalWins = 0;
-        currentUserProfile.totalLosses = 0.0;
-        currentUserProfile.totalGames = 0;
-
-        // Save updated profile
-        userProfiles[userIndex] = currentUserProfile;
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+    // Assign a fixed starting balance of £500 if not already assigned
+    if (!currentUserProfile.startingBalanceAssigned) {
+        currentUserProfile.totalBalance = 500;
+        currentUserProfile.startingBalanceAssigned = true;
+        saveUserProfile();
     }
 
-    // Parse values to ensure numeric types
-    currentUserProfile.totalBets = parseFloat(currentUserProfile.totalBets) || 0.0;
-    currentUserProfile.totalWins = parseInt(currentUserProfile.totalWins) || 0;
-    currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0.0;
-    currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0.0;
-    currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) || 0.0;
+    currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
 
-    // Display user's statistics
-    if (totalBetsDisplay) totalBetsDisplay.textContent = `${currentUserProfile.totalBets.toFixed(2)}`;
-    if (totalWinsDisplay) totalWinsDisplay.textContent = currentUserProfile.totalWins;
-    if (totalLossesDisplay) totalLossesDisplay.textContent = `£${currentUserProfile.totalLosses.toFixed(2)}`;
-    if (totalBalanceDisplay) totalBalanceDisplay.textContent = `£${currentUserProfile.totalBalance.toFixed(2)}`;
-    if (totalProfitDisplay) totalProfitDisplay.textContent = `£${currentUserProfile.totalProfit.toFixed(2)}`;
+    usernameDisplay.textContent = currentUserProfile.username;
+    totalBalanceDisplay.textContent = `£${currentUserProfile.totalBalance.toFixed(2)}`;
 
-    // Logout button event listener
-    logoutButton.addEventListener("click", () => {
+    // Spin Limitation Setup
+    const currentDate = new Date().toLocaleDateString();
+    let spinData = JSON.parse(localStorage.getItem('spinData')) || {};
+
+    if (!spinData[currentUserProfile.username] || spinData[currentUserProfile.username].date !== currentDate) {
+        spinData[currentUserProfile.username] = { count: 0, date: currentDate };
+        localStorage.setItem('spinData', JSON.stringify(spinData));
+    }
+
+    updateSpinButton();
+
+    const segments = ["£1000", "£0", "£0", "£20", "£50", "£100", "£0", "£10", "£0", "£30", "£0", "£50", "£20", "£0", "£10", "£0"];
+    const colors = ["#FF5733", "#33FF57", "#3357FF", "#F333FF", "#FF33A8", "#33FFF3", "#F3FF33", "#FF8C33", "#FFA500", "#00CED1", "#9400D3", "#FFD700", "#7B68EE", "#48D1CC", "#FF4500", "#8A2BE2"];
+    const numSegments = segments.length;
+    const anglePerSegment = (2 * Math.PI) / numSegments;
+    let currentAngle = 0;
+    let isSpinning = false;
+    let spinTimeout = null;
+    let spinAngleStart = 0;
+    let spinTime = 0;
+    let spinTimeTotal = 0;
+
+    function drawWheel() {
+        ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+        const centerX = wheelCanvas.width / 2;
+        const centerY = wheelCanvas.height / 2;
+        const outerRadius = Math.min(centerX, centerY) - 10;
+
+        for (let i = 0; i < numSegments; i++) {
+            const startAngle = currentAngle + i * anglePerSegment;
+            const endAngle = startAngle + anglePerSegment;
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle, false);
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(startAngle + anglePerSegment / 2);
+            ctx.textAlign = "right";
+            ctx.fillStyle = "#000000";
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(segments[i], outerRadius - 10, 0);
+            ctx.restore();
+        }
+
+        ctx.fillStyle = '#333333';
+        ctx.beginPath();
+        ctx.moveTo(centerX - 10, centerY - (outerRadius + 20));
+        ctx.lineTo(centerX + 10, centerY - (outerRadius + 20));
+        ctx.lineTo(centerX, centerY - (outerRadius - 10));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function spin() {
+        if (isSpinning || spinData[currentUserProfile.username].count >= 3) {
+            alert('You have no spins left for today.');
+            return;
+        }
+
+        isSpinning = true;
+        spinData[currentUserProfile.username].count += 1;
+        localStorage.setItem('spinData', JSON.stringify(spinData));
+
+        updateSpinButton();
+
+        spinAngleStart = Math.random() * 10 + 10;
+        spinTime = 0;
+        spinTimeTotal = Math.random() * 3000 + 4000;
+        rotateWheel();
+    }
+
+    function rotateWheel() {
+        spinTime += 30;
+        if (spinTime >= spinTimeTotal) {
+            stopRotateWheel();
+            return;
+        }
+        const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+        currentAngle += (spinAngle * Math.PI / 180);
+        currentAngle %= (2 * Math.PI);
+        drawWheel();
+        spinTimeout = setTimeout(rotateWheel, 30);
+    }
+
+    function stopRotateWheel() {
+        clearTimeout(spinTimeout);
+        isSpinning = false;
+        const degrees = currentAngle * 180 / Math.PI + 90;
+        const arcd = anglePerSegment * 180 / Math.PI;
+        const index = Math.floor((360 - (degrees % 360)) / arcd) % numSegments;
+
+        const rewardText = segments[index];
+        const rewardAmount = parseInt(rewardText.replace('£', '')) || 0;
+
+        currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) + rewardAmount;
+        totalBalanceDisplay.textContent = `£${currentUserProfile.totalBalance.toFixed(2)}`;
+
+        saveUserProfile();
+
+        // Update modal with reward information
+        if (rewardAmount === 0) {
+            rewardMessage.textContent = "Better luck next time!";
+        } else {
+            rewardMessage.textContent = `Congratulations! You have won ${rewardText}!`;
+        }
+        rewardModal.style.display = 'flex';
+    }
+
+    function easeOut(t, b, c, d) {
+        t /= d;
+        t--;
+        return c * (t * t * t + 1) + b;
+    }
+
+    function saveUserProfile() {
+        userProfiles[userIndex] = currentUserProfile;
+        localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
+    }
+
+    function updateSpinButton() {
+        const spinsLeft = 3 - spinData[currentUserProfile.username].count;
+        if (spinsLeft <= 0) {
+            spinButton.disabled = true;
+            spinButton.textContent = "No Spins Left Today";
+        } else {
+            spinButton.disabled = false;
+            spinButton.textContent = `Spin the Wheel (${spinsLeft} spins left)`;
+        }
+    }
+
+    drawWheel();
+    updateSpinButton();
+
+    spinButton.addEventListener('click', spin);
+
+    closeRewardModalButton.addEventListener('click', () => {
+        rewardModal.style.display = 'none';
+    });
+
+    rewardOkButton.addEventListener('click', () => {
+        rewardModal.style.display = 'none';
+    });
+
+    logoutButton.addEventListener('click', () => {
         document.getElementById('logout-modal').style.display = 'flex';
     });
 
-    // Handle logout confirmation modal
     document.getElementById('close-logout-modal').addEventListener('click', () => {
         document.getElementById('logout-modal').style.display = 'none';
     });
@@ -72,53 +212,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('confirm-logout-button').addEventListener('click', () => {
         localStorage.removeItem('userProfiles');
         localStorage.removeItem('currentUserIndex');
+        localStorage.removeItem('spinData');
         window.location.href = 'user-auth.html';
     });
 
-    // Function to validate if the user has enough balance
-    function canPlaceBet(amount) {
-        if (currentUserProfile.totalBalance >= amount) {
-            return true;
-        } else {
-            openBalanceModal("You don't have enough balance to place this bet. Please top up or adjust your bet.");
-            return false;
-        }
-    }
-
-    // Function to open the insufficient balance modal
-    function openBalanceModal(message) {
-        const balanceModal = document.getElementById('balance-modal');
-        const balanceModalMessage = document.getElementById('balance-modal-message');
-        
-        balanceModalMessage.textContent = message;
-        balanceModal.style.display = 'flex';
-    }
-
-    // Close insufficient balance modal
-    document.getElementById('close-balance-modal').addEventListener('click', () => {
-        document.getElementById('balance-modal').style.display = 'none';
+    blackjackGameButton.addEventListener('click', () => {
+        window.location.href = 'blackjack.html';
     });
 
-    document.getElementById('balance-ok-button').addEventListener('click', () => {
-        document.getElementById('balance-modal').style.display = 'none';
-    });
-
-    // Handle Game Selection
-    document.querySelectorAll('.game-card').forEach(card => {
-        card.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default navigation
-            const gameId = event.currentTarget.id;
-
-            // Define the bet required to play each game (assuming a default bet of 10)
-            const requiredBet = 10;
-
-            if (canPlaceBet(requiredBet)) {
-                if (gameId === 'blackjack-game') {
-                    window.location.href = `blackjack.html?userIndex=${userIndex}`;
-                } else if (gameId === 'rocket-crash-game') {
-                    window.location.href = `rocket-crash.html?userIndex=${userIndex}`;
-                }
-            }
-        });
+    rocketCrashGameButton.addEventListener('click', () => {
+        window.location.href = 'rocket-crash.html';
     });
 });
