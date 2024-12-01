@@ -1,14 +1,45 @@
-// welcome.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // Mobile Navigation Toggle
     const mobileMenu = document.getElementById('mobile-menu');
     const navMenu = document.getElementById('nav-menu');
 
-    mobileMenu.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        mobileMenu.classList.toggle('open'); // Animates the hamburger icon
+    if (mobileMenu && navMenu) {
+        mobileMenu.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            mobileMenu.classList.toggle('open'); // Animates the hamburger icon
+        });
+    }
+
+    // Sound Toggle Button
+    const soundToggleButton = document.getElementById('sound-toggle');
+    const soundIcon = document.getElementById('sound-icon'); // Icon element
+    const audioElement = document.getElementById('background-music'); // Audio element
+
+    if (!audioElement) {
+        console.error("Audio element not found. Make sure the audio element exists in the DOM.");
+        return;
+    }
+
+    // Start the audio in muted state
+    audioElement.muted = true;
+    let isMuted = true; // Tracks if the sound is muted
+
+    // Add event listener to toggle sound
+    soundToggleButton.addEventListener('click', () => {
+        if (isMuted) {
+            // Unmute the audio and update icon
+            audioElement.muted = false;
+            soundIcon.classList.replace('fa-volume-mute', 'fa-volume-up');
+        } else {
+            // Mute the audio and update icon
+            audioElement.muted = true;
+            soundIcon.classList.replace('fa-volume-up', 'fa-volume-mute');
+        }
+
+        isMuted = !isMuted; // Toggle the mute state
     });
+});
+
 
     // DOM Elements for User Stats
     const usernameDisplay = document.getElementById('username');
@@ -46,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameCards = document.querySelectorAll('.game-card');
 
     // Audio Elements
-    const winSound = new Audio('sounds/win-sound.wav');
+    const winSound = new Audio('sounds/win-sound.mp3');
     const loseSound = new Audio('sounds/lose-sound.mp3');
 
     // User Profile Variables
@@ -138,18 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('You have no spins left for today.');
             return;
         }
-
+    
         isSpinning = true;
         spinData[currentUserProfile.username].count += 1;
         localStorage.setItem('spinData', JSON.stringify(spinData));
         updateSpinButton();
-
-        const spinAngleStart = Math.random() * 10 + 10;
+    
+        const spinAngleStart = Math.random() * 5 + 5; // Slower initial spin
         let spinTime = 0;
-        const spinTimeTotal = Math.random() * 3000 + 4000;
-
+        const spinTimeTotal = Math.random() * 5000 + 6000; // Longer spin time
+    
         function rotateWheel() {
-            spinTime += 30;
+            spinTime += 20; // Slower updates for smoother spin
             if (spinTime >= spinTimeTotal) {
                 stopRotateWheel();
                 return;
@@ -160,9 +191,15 @@ document.addEventListener('DOMContentLoaded', () => {
             drawWheel();
             requestAnimationFrame(rotateWheel);
         }
-
+    
         rotateWheel();
     }
+    
+    function easeOut(t, b, c, d) {
+        t /= d;
+        t--;
+        return c * (t * t * t * t + 1) + b; // Smoother deceleration
+    }    
 
     function stopRotateWheel() {
         isSpinning = false;
@@ -367,4 +404,3 @@ document.addEventListener('DOMContentLoaded', () => {
             drawWheel();
         }
     });
-});

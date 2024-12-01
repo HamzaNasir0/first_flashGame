@@ -1,7 +1,8 @@
 /* welcome.css */
 
 /* Full height for html and body */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   display: flex;
@@ -10,7 +11,7 @@ html, body {
 
 /* General Styling */
 body {
-  font-family: 'Poppins', Arial, sans-serif;
+  font-family: "Poppins", Arial, sans-serif;
   background: #121212;
   color: #fff;
   text-align: center;
@@ -189,7 +190,6 @@ button:hover {
   padding-right: 40px; /* Added padding to give more space at the end */
 }
 
-
 .carousel::-webkit-scrollbar {
   display: none; /* Hides scrollbar */
 }
@@ -197,7 +197,9 @@ button:hover {
 /* Game Card Styling */
 .carousel .game-card {
   flex: 0 0 auto;
-  width: calc(100% - 40px); /* Makes each card nearly full-width on mobile, accounting for gaps */
+  width: calc(
+    100% - 40px
+  ); /* Makes each card nearly full-width on mobile, accounting for gaps */
   max-width: 280px; /* Limits the card width */
   margin: 0 auto;
   scroll-snap-align: center; /* Center aligns each card when scrolling */
@@ -385,7 +387,7 @@ button:hover {
 
 .footer p {
   margin: 0;
-  font-family: 'Poppins', Arial, sans-serif;
+  font-family: "Poppins", Arial, sans-serif;
   font-size: 1rem;
 }
 
@@ -456,6 +458,21 @@ button:hover {
   border-radius: 50%;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
 }
+
+#sound-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#sound-toggle:hover {
+  transform: scale(1.2); /* Slight zoom effect on hover */
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
