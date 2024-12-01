@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ensures responsive scaling -->
+  <title>3x3 Scratch & Win</title>
+  <link rel="stylesheet" href="./css/Scratch_Win.css">
+  <!-- Optional: Include Canvas Confetti Library for confetti effects -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    /* Navbar Styles */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar__logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .navbar__links {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar__link {
+      margin: 0 10px;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    .navbar__link:hover {
+      color: #ffd700;
+    }
+
+    /* Hamburger Menu Styling */
+    .navbar__toggle {
+      display: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: white;
+      background: none;
+      border: none;
+    }
+
+    .main-content {
+      margin-top: 80px;
+      /* Account for fixed navbar */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: calc(100vh - 80px);
+      padding: 20px;
+    }
+
+    /* Balance Styling under Scratch & Win title */
+    .balance-display {
+      font-size: 1.3rem;
+      color: #f7d35e;
+      font-weight: bold;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Hide cursor when hovering over the coin element */
+    #coin {
+      cursor: none;
+    }
+
+    /* Hide cursor when hovering over the scratch grid (optional) */
+    #emojiGrid {
+      cursor: none;
+    }
+
+    /* Mobile Navbar Styles */
+    @media (max-width: 768px) {
+      .navbar__links {
+        display: none;
+        flex-direction: column;
+        background-color: rgba(51, 51, 51, 0.95);
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 100%;
+        text-align: center;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .navbar__links.show {
+        display: flex;
+      }
+
+      .navbar__link {
+        margin: 10px 0;
+      }
+
+      .navbar__toggle {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar__logo">Game Suite</div>
+    <button id="mobile-menu-button" class="navbar__toggle">&#9776;</button>
+    <ul class="navbar__links">
+      <li><a href="welcome.html" class="navbar__link">Home</a></li>
+      <li><a href="blackjack.html" class="navbar__link">Blackjack</a></li>
+      <li><a href="rocket-crash.html" class="navbar__link">Rocket Crash</a></li>
+      <li><a href="scratch_win.html" class="navbar__link">Scratch & Win</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div id="scratch-win" class="scratch-win">
+      <div class="scratch-win__title">Scratch & Win</div>
+      <!-- Moved balance display here -->
+      <div class="balance-display">Balance: £0.00</div>
+      <div id="emojiGrid" class="scratch-win__grid"></div>
+      <div class="scratch-win__buttons">
+        <!-- Updated Play button to include cost -->
+        <button id="playButton" class="scratch-win__play">Play (£100)</button>
+        <!-- New Details button to show all emoji and their values -->
+        <button id="detailsButton" class="scratch-win__details">Details</button>
+      </div>
+    </div>
+
+    <!-- Coin Element -->
+    <div id="coin" class="scratch-win__coin">
+      <div class="scratch-win__coin-side"></div>
+      <div class="scratch-win__coin-base"></div>
+    </div>
+
+    <!-- Confetti Element -->
+    <div id="confetti" class="confetti"></div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="close-win-modal">&times;</span>
+        <p id="win-message">You won £200! Would you like to play again?</p>
+        <button id="play-again-button" class="modal-button">Play Again</button>
+        <button id="cancel-button" class="modal-button modal-button-secondary">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="details-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="close-details-modal">&times;</span>
+        <h2>Emoji Payout Details</h2>
+        <ul id="emoji-details-list" class="emoji-details-list">
+          <!-- The list of emojis and winning amounts will be populated by JavaScript -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include the JavaScript file -->
+  <script>
+    // JavaScript to handle the mobile menu toggle
+    document.addEventListener("DOMContentLoaded", () => {
+      const mobileMenuButton = document.getElementById("mobile-menu-button");
+      const navbarLinks = document.querySelector(".navbar__links");
+
+      mobileMenuButton.addEventListener("click", () => {
+        navbarLinks.classList.toggle("show");
+      });
+
+      // Close mobile menu when clicking outside of it
+      document.addEventListener("click", (e) => {
+        if (!navbarLinks.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+          navbarLinks.classList.remove("show");
+        }
+      });
+    });
+  </script>
+  <script src="./js/Scratch_Win.js"></script>
+</body>
+
+</html>
