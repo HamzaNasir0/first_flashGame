@@ -315,6 +315,13 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Graph Container Wrapper */
+.graph-container-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 0 auto;
+}
+
 /* Graph Container Styling */
 #graph-container {
     aspect-ratio: 16/9;
@@ -323,6 +330,8 @@ h1 {
     border-radius: var(--border-radius);
     position: relative;
     flex-grow: 1; /* Allow the graph container to grow */
+    max-width: 100%;
+    overflow: hidden;
 }
 
 /* Past Crashes Styling */
