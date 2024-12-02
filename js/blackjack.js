@@ -10,7 +10,7 @@ let dealerHand = [];
 let playerHand = [];
 let dealerHiddenCard = null;
 
-let totalBalance = 0;
+let totalBalance = 500; // Default starting balance
 let totalProfit = 0;
 let currentBet = 0;
 let totalWins = 0;
@@ -47,19 +47,11 @@ const loseSound = new Audio('sounds/lose-sound.mp3');
 
 // Initialize the game
 function initializeGame() {
-    // Initialize user profile
     loadUserProfile();
-
-    // Initialize UI
+    resetGameState();
+    setupMobileMenu();
     updateStatisticsDisplay();
     clearCardDisplay();
-    resetGameState();
-
-    // Initialize Mobile Menu Toggle
-    mobileMenu.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        mobileMenu.classList.toggle('open'); // Animates the hamburger icon
-    });
 }
 
 // Setup Event Listeners
@@ -70,13 +62,7 @@ function setupEventListeners() {
     });
 
     // Play Button
-    playButton.addEventListener("click", () => {
-        if (currentBet === 0) {
-            openModal("Please place a bet before playing!");
-            return;
-        }
-        dealInitialCards();
-    });
+    playButton.addEventListener("click", startGame);
 
     // Hit Button
     hitButton.addEventListener("click", () => {
@@ -109,6 +95,14 @@ function setupEventListeners() {
     });
 }
 
+// Handle Mobile Menu Toggle
+function setupMobileMenu() {
+    mobileMenu.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        mobileMenu.classList.toggle('open'); // Animates the hamburger icon
+    });
+}
+
 // Handle Chip Click
 function handleChipClick() {
     if (gameInProgress) {
@@ -137,81 +131,158 @@ function handleChipClick() {
     playButton.style.display = "block"; // Show play button once bet is placed
 }
 
-// Load User Profile from localStorage
-function loadUserProfile() {
-    let userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    let userIndex = parseInt(localStorage.getItem("currentUserIndex"));
-
-    // If no user is set, initialize the first user
-    if (isNaN(userIndex) || userIndex < 0 || userIndex >= userProfiles.length) {
-        // Create a default user profile
-        const defaultUser = {
-            totalProfit: "0.00",
-            totalBalance: "500.00",
-            totalWins: "0",
-            totalLosses: "0.00",
-            totalBets: "0.00"
-        };
-        userProfiles.push(defaultUser);
-        userIndex = 0;
-        localStorage.setItem("currentUserIndex", userIndex);
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-        console.log("Initialized default user profile.");
+// Start the Game
+function startGame() {
+    if (currentBet === 0) {
+        openModal("Please place a bet before playing!");
+        return;
     }
-
-    const currentUserProfile = userProfiles[userIndex];
-    totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
-    totalBalance = parseFloat(currentUserProfile.totalBalance) || 500; // Default to 500 if not set
-    totalWins = parseInt(currentUserProfile.totalWins) || 0;
-    totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
-    totalBets = parseFloat(currentUserProfile.totalBets) || 0;
-
-    console.log(`Loaded user profile:`, currentUserProfile);
+    dealInitialCards();
+    updateUIState();
 }
 
-// Update User Profile in localStorage
-function updateUserProfile() {
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
+// Deal Initial Cards
+function dealInitialCards() {
+    resetHands();
+    playerHand.push(drawCard(), drawCard());
+    dealerHand.push(drawCard());
+    dealerHiddenCard = drawCard();
+    displayHands();
+    gameInProgress = true;
+}
 
-    console.log(`Updating user profile for userIndex: ${userIndex}`);
+// Reset Hands
+function resetHands() {
+    dealerHand = [];
+    playerHand = [];
+    dealerHiddenCard = null;
+}
 
-    if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
-        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2); // Save profit
-        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2); // Save balance
-        userProfiles[userIndex].totalWins = totalWins; // Save wins
-        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2); // Save losses
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2); // Save bets
-
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-        console.log(`User profile updated:`, userProfiles[userIndex]);
+// Display Hands
+function displayHands(showDealerFull = false) {
+    // Dealer's Cards
+    dealerCards.innerHTML = dealerHand.map(card => createCardHTML(card)).join('');
+    if (!showDealerFull) {
+        dealerCards.innerHTML += `<img class="card" src="img/hidden.png" alt="Hidden Card">`;
+        dealerTotalValue.textContent = "Dealer's Total: ?";
     } else {
-        console.error("Invalid userIndex. Cannot update user profile.");
+        dealerTotalValue.textContent = `Dealer's Total: ${calculateHandValue(dealerHand)}`;
     }
+
+    // Player's Cards
+    playerCards.innerHTML = playerHand.map(card => createCardHTML(card)).join('');
+    playerTotalValue.textContent = `Your Total: ${calculateHandValue(playerHand)}`;
 }
 
-// Update Statistics Display
-function updateStatisticsDisplay() {
-    profitDisplay.textContent = `Total Profit: £${totalProfit.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    balanceDisplay.textContent = `£${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    document.getElementById("total-wins").textContent = `Total Wins: ${totalWins}`;
-    document.getElementById("total-losses").textContent = `Total Losses: £${totalLosses.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+// Create Card HTML
+function createCardHTML(card) {
+    return `<img class="card" src="img/${card.suit}${card.value}.png" alt="${getCardName(card)}">`;
 }
 
-// Create a Deck of Cards
-function createDeck() {
-    const suits = ["c", "d", "h", "s"]; // Clubs, Diamonds, Hearts, Spades
-    const values = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
-    let newDeck = [];
+// Calculate Hand Value
+function calculateHandValue(hand) {
+    let total = 0;
+    let aces = 0;
 
-    for (let suit of suits) {
-        for (let value of values) {
-            newDeck.push({ value, suit });
+    hand.forEach(card => {
+        if (card.value === "01") {
+            aces++;
+            total += 11; // Count Ace as 11 initially
+        } else if (["11", "12", "13"].includes(card.value)) {
+            total += 10; // Face cards count as 10
+        } else {
+            total += parseInt(card.value);
         }
+    });
+
+    // Adjust Aces if total exceeds 21
+    while (total > 21 && aces > 0) {
+        total -= 10;
+        aces--;
     }
 
-    return shuffleDeck(newDeck);
+    return total;
+}
+
+// Check if Player Busts
+function checkPlayerBust() {
+    if (calculateHandValue(playerHand) > 21) {
+        announceWinner("dealer");
+    }
+}
+
+// Dealer's Turn
+function dealerTurn() {
+    displayHands(true);
+    while (calculateHandValue(dealerHand) < 17) {
+        dealerHand.push(drawCard());
+        displayHands(true);
+    }
+    determineWinner();
+}
+
+// Determine Winner
+function determineWinner() {
+    const playerTotal = calculateHandValue(playerHand);
+    const dealerTotal = calculateHandValue(dealerHand);
+
+    if (dealerTotal > 21 || playerTotal > dealerTotal) {
+        announceWinner("player");
+    } else if (playerTotal < dealerTotal) {
+        announceWinner("dealer");
+    } else {
+        announceWinner("tie");
+    }
+}
+
+// Announce Winner
+function announceWinner(winner) {
+    gameInProgress = false;
+
+    if (winner === "player") {
+        resultDisplay.textContent = "You Win!";
+        totalProfit += currentBet;
+        totalBalance += currentBet * 2;
+        totalWins++;
+        winSound.play();
+    } else if (winner === "dealer") {
+        resultDisplay.textContent = "Dealer Wins!";
+        totalLosses += currentBet;
+        loseSound.play();
+    } else {
+        resultDisplay.textContent = "It's a Tie!";
+        totalBalance += currentBet; // Refund bet
+    }
+
+    updateStatisticsDisplay();
+    resetCurrentBet();
+    updateUIState();
+}
+
+// Reset Current Bet
+function resetCurrentBet() {
+    currentBet = 0;
+    bettingArea.innerHTML = "Betting Area: Place Your Bets!";
+}
+
+// Update UI State
+function updateUIState() {
+    hitButton.style.display = gameInProgress ? "block" : "none";
+    standButton.style.display = gameInProgress ? "block" : "none";
+    playButton.style.display = currentBet > 0 && !gameInProgress ? "block" : "none";
+    restartButton.style.display = !gameInProgress ? "block" : "none";
+}
+
+// Reset Game State
+function resetGameState() {
+    deck = createDeck();
+    shuffleDeck(deck);
+    resetHands();
+    clearCardDisplay();
+    updateStatisticsDisplay();
+    gameInProgress = false;
+    resetCurrentBet();
+    updateUIState();
 }
 
 // Shuffle the Deck
@@ -223,62 +294,18 @@ function shuffleDeck(deck) {
     return deck;
 }
 
-// Draw a Card from the Deck
-function drawCard() {
-    if (deck.length === 0) {
-        deck = createDeck(); // Recreate deck if empty
-    }
-    return deck.pop();
+// Create a Deck of Cards
+function createDeck() {
+    const suits = ["c", "d", "h", "s"];
+    const values = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
+    return suits.flatMap(suit => values.map(value => ({ suit, value })));
 }
 
-// Deal Initial Cards
-function dealInitialCards() {
-    if (currentBet === 0) {
-        openModal("Please place a bet before playing!");
-        return;
-    }
-
-    // Reset Hands
-    dealerHand = [];
-    playerHand = [];
-    dealerHiddenCard = null;
-
-    // Deal Cards
-    playerHand.push(drawCard());
-    playerHand.push(drawCard());
-    dealerHand.push(drawCard());
-    dealerHiddenCard = drawCard();
-    dealerHand.push(dealerHiddenCard);
-
-    // Display Hands
-    displayHands();
-
-    // Update UI
-    gameInProgress = true;
-    playButton.style.display = "none";
-    chipsSection.style.display = "none";
-    restartButton.style.display = "none";
-    hitButton.style.display = "block";
-    standButton.style.display = "block";
-}
-
-// Display Hands
-function displayHands(showDealerFull = false) {
-    // Display Dealer's Cards
-    if (showDealerFull) {
-        dealerCards.innerHTML = dealerHand.map(card => `<img class="card" src="img/${card.suit}${card.value}.png" alt="${getCardName(card)}">`).join(" ");
-        dealerTotalValue.textContent = `Dealer's Total: ${calculateHandValue(dealerHand)}`;
-    } else {
-        if (dealerHand.length > 0) {
-            dealerCards.innerHTML = `<img class="card" src="img/${dealerHand[0].suit}${dealerHand[0].value}.png" alt="${getCardName(dealerHand[0])}">`;
-            dealerCards.innerHTML += `<img class="card" src="img/hidden.png" alt="Hidden Card">`;
-            dealerTotalValue.textContent = `Dealer's Total: ?`;
-        }
-    }
-
-    // Display Player's Cards
-    playerCards.innerHTML = playerHand.map(card => `<img class="card" src="img/${card.suit}${card.value}.png" alt="${getCardName(card)}">`).join(" ");
-    playerTotalValue.textContent = `Your Total: ${calculateHandValue(playerHand)}`;
+function clearCardDisplay() {
+    dealerCards.innerHTML = "";
+    dealerTotalValue.textContent = "Dealer's Total: ?";
+    playerCards.innerHTML = "";
+    playerTotalValue.textContent = "Your Total: ?";
 }
 
 // Get Card Name for Accessibility
@@ -299,141 +326,78 @@ function getCardName(card) {
     return `${value} of ${suitMap[card.suit]}`;
 }
 
-// Calculate Hand Value
-function calculateHandValue(hand) {
-    let value = 0;
-    let aceCount = 0;
-
-    for (let card of hand) {
-        let cardValue = parseInt(card.value);
-        if (cardValue >= 11 && cardValue <= 13) {
-            value += 10; // Face cards
-        } else if (cardValue === 1) {
-            aceCount += 1;
-            value += 11; // Ace initially counted as 11
-        } else {
-            value += cardValue; // Number cards
-        }
-    }
-
-    // Adjust for Aces if value > 21
-    while (value > 21 && aceCount > 0) {
-        value -= 10;
-        aceCount -= 1;
-    }
-
-    return value;
+// Open Modal with Message
+function openModal(message) {
+    modalMessage.textContent = message;
+    modal.style.display = "flex";
 }
 
-// Check if Player Busts
-function checkPlayerBust() {
-    const playerTotal = calculateHandValue(playerHand);
-    playerTotalValue.textContent = `Your Total: ${playerTotal}`;
+// Load User Profile from localStorage
+function loadUserProfile() {
+    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
 
-    if (playerTotal > 21) {
-        announceWinner("dealer");
-    }
-}
-
-// Dealer's Turn
-function dealerTurn() {
-    displayHands(true); // Show all dealer cards
-    let dealerTotal = calculateHandValue(dealerHand);
-
-    // Dealer hits until total is at least 17
-    while (dealerTotal < 17) {
-        dealerHand.push(drawCard());
-        dealerTotal = calculateHandValue(dealerHand);
-        displayHands(true);
-    }
-
-    // Determine Winner
-    determineWinner();
-}
-
-// Determine Winner
-function determineWinner() {
-    const playerTotal = calculateHandValue(playerHand);
-    const dealerTotal = calculateHandValue(dealerHand);
-
-    if (dealerTotal > 21) {
-        // Dealer busts, player wins
-        announceWinner("player");
-    } else if (playerTotal > dealerTotal) {
-        // Player has higher total
-        announceWinner("player");
-    } else if (dealerTotal > playerTotal) {
-        // Dealer has higher total
-        announceWinner("dealer");
+    if (!isNaN(userIndex) && userProfiles[userIndex]) {
+        const currentUserProfile = userProfiles[userIndex];
+        totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+        totalBalance = parseFloat(currentUserProfile.totalBalance) || 500;
+        totalWins = parseInt(currentUserProfile.totalWins) || 0;
+        totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
+        totalBets = parseFloat(currentUserProfile.totalBets) || 0;
     } else {
-        // Tie
-        announceWinner("tie");
+        saveDefaultUserProfile(userProfiles);
     }
-}
-
-// Announce Winner
-function announceWinner(winner) {
-    gameInProgress = false;
-
-    if (winner === "player") {
-        resultDisplay.style.color = "lightgreen";
-        resultDisplay.textContent = "You win!";
-        winSound.play();
-
-        totalWins += 1;
-        totalProfit += currentBet;
-        totalBalance += currentBet * 2; // Player gets their bet back plus winnings
-    } else if (winner === "dealer") {
-        resultDisplay.style.color = "red";
-        resultDisplay.textContent = "Dealer wins!";
-        loseSound.play();
-
-        totalLosses += currentBet;
-        // Player already lost the bet when placing it
-    } else if (winner === "tie") {
-        resultDisplay.style.color = "yellow";
-        resultDisplay.textContent = "It's a tie!";
-        totalBalance += currentBet; // Refund the bet
-    }
-
-    // Update Statistics
     updateStatisticsDisplay();
-    updateUserProfile();
+}
 
-    // Reset Current Bet
-    currentBet = 0;
-    bettingArea.innerHTML = `Betting Area: Place Your Bets!`;
+// Save Default User Profile
+function saveDefaultUserProfile(userProfiles) {
+    const defaultUser = {
+        totalProfit: "0.00",
+        totalBalance: "500.00",
+        totalWins: "0",
+        totalLosses: "0.00",
+        totalBets: "0.00"
+    };
+    userProfiles.push(defaultUser);
+    localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+    localStorage.setItem("currentUserIndex", 0);
+}
 
-    // Update UI
-    hitButton.style.display = "none";
-    standButton.style.display = "none";
-    restartButton.style.display = "block";
-    chipsSection.style.display = "block";
-    playButton.style.display = "none"; // Hide play button until a new bet is placed
+// Update User Profile in localStorage
+function updateUserProfile() {
+    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
 
-    // Check if player is out of balance
-    if (totalBalance <= 0) {
-        openModal("You have run out of balance! Please restart the game.");
+    if (!isNaN(userIndex) && userProfiles[userIndex]) {
+        const currentUserProfile = userProfiles[userIndex];
+        currentUserProfile.totalProfit = totalProfit.toFixed(2);
+        currentUserProfile.totalBalance = totalBalance.toFixed(2);
+        currentUserProfile.totalWins = totalWins;
+        currentUserProfile.totalLosses = totalLosses.toFixed(2);
+        currentUserProfile.totalBets = totalBets.toFixed(2);
+
+        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
     }
 }
 
-// Restart Game
+// Update Statistics Display
+function updateStatisticsDisplay() {
+    profitDisplay.textContent = `Total Profit: £${totalProfit.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+    balanceDisplay.textContent = `£${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+    document.getElementById("total-wins").textContent = `Total Wins: ${totalWins}`;
+    document.getElementById("total-losses").textContent = `Total Losses: £${totalLosses.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+    document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+}
+
+// Restart the Game
 function restartGame() {
     if (gameInProgress) {
         openModal("Game is in progress. Please finish the current game first.");
         return;
     }
 
-    // Refund the current bet if any
-    if (currentBet > 0) {
-        totalBalance += currentBet;
-        currentBet = 0;
-        bettingArea.innerHTML = `Betting Area: Place Your Bets!`;
-        updateStatisticsDisplay();
-        updateUserProfile();
-    }
-
-    // Reset Game State
+    resetCurrentBet();
     resetGameState();
     clearCardDisplay();
     updateStatisticsDisplay();
@@ -442,54 +406,8 @@ function restartGame() {
     chipsSection.style.display = "block";
 }
 
-// Reset Game State
-function resetGameState() {
-    dealerHand = [];
-    playerHand = [];
-    dealerHiddenCard = null;
-    deck = createDeck();
-    resultDisplay.textContent = "";
-    gameInProgress = false;
-    hitButton.style.display = "none";
-    standButton.style.display = "none";
-    playButton.style.display = "none";
-    restartButton.style.display = "block";
-}
-
-// Clear Card Displays
-function clearCardDisplay() {
-    dealerCards.innerHTML = "";
-    dealerTotalValue.textContent = "Dealer's Total: ?";
-    playerCards.innerHTML = "";
-    playerTotalValue.textContent = "Your Total: ?";
-}
-
-// Open Modal with Message
-function openModal(message) {
-    modalMessage.textContent = message;
-    modal.style.display = "flex";
-}
-
-// Update User Profile in localStorage
-function updateUserProfile() {
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
-
-    if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
-        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2);
-        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
-        userProfiles[userIndex].totalWins = totalWins;
-        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2);
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
-
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-    } else {
-        console.error("Invalid user index. Cannot update user profile.");
-    }
-}
-
-// Reset Local Storage (For Debugging Purposes)
-// Uncomment the following lines to reset localStorage
+// Debugging Helper (Optional)
+// Uncomment to clear localStorage for testing
 /*
 function resetLocalStorage() {
     localStorage.removeItem("userProfiles");
