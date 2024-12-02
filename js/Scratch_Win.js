@@ -396,9 +396,12 @@ const initializeGrid = () => {
     hasPaid = false; // Reset payment status for a new game
     playButton.style.display = 'none'; // Hide play button during game reset
     detailsButton.style.display = 'none'; // Hide details button during game reset
-    resetGame(); // Reset the game
-    gameInProgress = true; // Mark that a game is in progress
-    hasWonPopupShown = false; // Allow for a new game popup
+    const playCost = 100;
+    if (deductPlayCost(playCost)) {
+      resetGame(); // Reset the game
+      gameInProgress = true; // Mark that a game is in progress
+      hasWonPopupShown = false; // Allow for a new game popup
+    }
   });
 
   cancelButton.addEventListener("click", () => {
@@ -416,9 +419,12 @@ const initializeGrid = () => {
     hasPaid = false; // Reset payment status for a new game
     playButton.style.display = 'none'; // Hide play button during game reset
     detailsButton.style.display = 'none'; // Hide details button during game reset
-    resetGame(); // Reset the game
-    gameInProgress = true; // Mark that a game is in progress
-    hasWonPopupShown = false; // Allow for a new game popup
+    const playCost = 100;
+    if (deductPlayCost(playCost)) {
+      resetGame(); // Reset the game
+      gameInProgress = true; // Mark that a game is in progress
+      hasWonPopupShown = false; // Allow for a new game popup
+    }
   });
 
   // Event listener for no match cancel button
