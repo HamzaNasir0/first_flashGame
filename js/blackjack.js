@@ -42,7 +42,7 @@ const closeModalButton = document.getElementById("close-modal");
 const modalMessage = document.getElementById("modal-message");
 
 // Audio Elements
-const winSound = new Audio('sounds/win-sound.wav');
+const winSound = new Audio('sounds/win-sound.mp3');
 const loseSound = new Audio('sounds/lose-sound.mp3');
 
 // Initialize the game
