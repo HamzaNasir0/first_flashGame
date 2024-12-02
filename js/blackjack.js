@@ -84,6 +84,8 @@ function setupEventListeners() {
             playerHand.push(drawCard());
             displayHands();
             checkPlayerBust();
+        } else {
+            openModal("Game is not in progress. Please start a new game.");
         }
     });
 
@@ -91,6 +93,8 @@ function setupEventListeners() {
     standButton.addEventListener("click", () => {
         if (gameInProgress) {
             dealerTurn();
+        } else {
+            openModal("Game is not in progress. Please start a new game.");
         }
     });
 
@@ -174,19 +178,17 @@ function updateUserProfile() {
     const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
     const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
 
-    console.log(`Updating user profile for userIndex: ${userIndex}`);
-
     if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
-        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2); // Save profit
-        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2); // Save balance
-        userProfiles[userIndex].totalWins = totalWins; // Save wins
-        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2); // Save losses
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2); // Save bets
+        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2);
+        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
+        userProfiles[userIndex].totalWins = totalWins;
+        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2);
+        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
 
         localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-        console.log(`User profile updated:`, userProfiles[userIndex]);
+        updateStatisticsDisplay(); // Ensure the display is updated
     } else {
-        console.error("Invalid userIndex. Cannot update user profile.");
+        console.error("Invalid user index. Cannot update user profile.");
     }
 }
 
@@ -266,37 +268,40 @@ function dealInitialCards() {
 function displayHands(showDealerFull = false) {
     // Display Dealer's Cards
     if (showDealerFull) {
-        dealerCards.innerHTML = dealerHand.map(card => `<img class="card" src="img/${card.suit}${card.value}.png" alt="${getCardName(card)}">`).join(" ");
+        dealerCards.innerHTML = dealerHand.map(card => `<span class="card">${getCardName(card)}</span>`).join(" ");
         dealerTotalValue.textContent = `Dealer's Total: ${calculateHandValue(dealerHand)}`;
     } else {
         if (dealerHand.length > 0) {
-            dealerCards.innerHTML = `<img class="card" src="img/${dealerHand[0].suit}${dealerHand[0].value}.png" alt="${getCardName(dealerHand[0])}">`;
-            dealerCards.innerHTML += `<img class="card" src="img/hidden.png" alt="Hidden Card">`;
+            dealerCards.innerHTML = `<span class="card">${getCardName(dealerHand[0])}</span>`;
+            dealerCards.innerHTML += `<span class="card"><img src="./img/hidden.png" alt="Hidden card" class="card-img"></span>`;
             dealerTotalValue.textContent = `Dealer's Total: ?`;
         }
     }
 
     // Display Player's Cards
-    playerCards.innerHTML = playerHand.map(card => `<img class="card" src="img/${card.suit}${card.value}.png" alt="${getCardName(card)}">`).join(" ");
+    playerCards.innerHTML = playerHand.map(card => `<span class="card">${getCardName(card)}</span>`).join(" ");
     playerTotalValue.textContent = `Your Total: ${calculateHandValue(playerHand)}`;
 }
 
 // Get Card Name for Accessibility
 function getCardName(card) {
     const valueMap = {
-        "01": "Ace",
-        "11": "Jack",
-        "12": "Queen",
-        "13": "King"
+        "01": "01",
+        "11": "11",
+        "12": "12",
+        "13": "13"
     };
     const value = valueMap[card.value] || card.value;
     const suitMap = {
-        "c": "Clubs",
-        "d": "Diamonds",
-        "h": "Hearts",
-        "s": "Spades"
+        "c": "c",
+        "d": "d",
+        "h": "h",
+        "s": "s"
     };
-    return `${value} of ${suitMap[card.suit]}`;
+    const suit = suitMap[card.suit];
+    const imagePath = `img/${suit}${value}.png`;
+    console.log(`Card image path: ${imagePath}`); // Debugging line
+    return `<span class="card"><img src="${imagePath}" alt="${value} of ${suit}" class="card-img"></span>`;
 }
 
 // Calculate Hand Value
@@ -483,6 +488,7 @@ function updateUserProfile() {
         userProfiles[userIndex].totalBets = totalBets.toFixed(2);
 
         localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+        updateStatisticsDisplay(); // Ensure the display is updated
     } else {
         console.error("Invalid user index. Cannot update user profile.");
     }

@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Missing Properties
     currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
     currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
-    currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 500;
+    currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
     currentUserProfile.totalBets = parseFloat(currentUserProfile.totalBets) || 0;
     currentUserProfile.totalWins = parseInt(currentUserProfile.totalWins, 10) || 0;
     currentUserProfile.username = currentUserProfile.username || `User ${userIndex + 1}`; // Assign default username if not set
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initialize Missing Properties
             currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
             currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
-            currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 500;
+            currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
             currentUserProfile.totalBets = parseFloat(currentUserProfile.totalBets) || 0;
             currentUserProfile.totalWins = parseInt(currentUserProfile.totalWins, 10) || 0;
             currentUserProfile.username = currentUserProfile.username || `User ${userIndex + 1}`;

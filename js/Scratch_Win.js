@@ -75,11 +75,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const displayWinMessage = (amountWon) => {
     winMessage.innerHTML = `You won <strong>${formatMoney(amountWon)}</strong>! Would you like to play again?`;
     winModal.style.display = "flex";
+    currentUserProfile.totalBalance += amountWon; // Update balance on win
+    saveUserProfile();
+    updateUserBalanceDisplay();
   };
 
   // Function to display a non-blocking "No Match" message as a modal
   const displayNoMatchMessage = () => {
     noMatchModal.style.display = "flex";
+    // Deduct play cost on no match
+    currentUserProfile.totalBalance -= 100;
+    saveUserProfile();
+    updateUserBalanceDisplay();
   };
 
   // Function to check for a win

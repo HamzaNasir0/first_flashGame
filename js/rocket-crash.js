@@ -224,7 +224,6 @@ function endGame(instantCrash) {
     updatePastCrashes(crashMultiplier);
 }
 
-
 // Update Multiplier Display Function
 function updateMultiplierDisplay() {
     multiplierDisplay.textContent = `${multiplier.toFixed(2)}x`;
@@ -260,7 +259,6 @@ function updateUserStats(bet, win) {
     }
 }
 
-
 // Function to Save User Data
 function saveUserData() {
     currentUserProfile.totalBalance = totalBalance;
@@ -277,7 +275,6 @@ skipToCrashButton.addEventListener("click", () => {
     updateMultiplierDisplay();        // Update the display
     endGame(false);                   // Call the endGame logic
 });
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const navToggle = document.getElementById("mobile-menu");
