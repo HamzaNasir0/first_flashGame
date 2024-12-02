@@ -11,8 +11,8 @@ body {
 
 /* Navbar Styling */
 .navbar {
-  background-color: rgba(34, 34, 34, 0.9);
-  padding: 15px 20px;
+  background-color: #222; /* Dark background */
+  padding: 10px 20px;
   position: fixed;
   width: 100%;
   top: 0;
