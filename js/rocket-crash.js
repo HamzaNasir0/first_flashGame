@@ -27,10 +27,8 @@ const balanceDisplay = document.getElementById("current-balance");
 const highestCashOutDisplay = document.getElementById("highest-cash-out");
 
 const bet100Button = document.getElementById("bet-100-button");
-const bet500Button = document.getElementById("bet-500-button");
-const bet1000Button = document.getElementById("bet-1000-button");
+const bet1000Button = document.getElementById("bet-1000-button"); // This is now the "All In" button
 const errorMessageDisplay = document.getElementById("error-message");
-const betHalfBalanceButton = document.getElementById("bet-half-balance-button");
 
 // Function to format money
 function formatMoney(amount) {
@@ -88,12 +86,24 @@ let chart = new Chart(ctx, {
             x: {
                 grid: {
                     color: "rgba(255, 255, 255, 0.1)"
+                },
+                ticks: {
+                    stepSize: 2, // Set x-axis step size to 2
+                    callback: function(value, index, values) {
+                        return value % 2 === 0 ? value : ''; // Show label every 2 seconds
+                    }
                 }
             },
             y: {
-                beginAtZero: true,
+                min: 1, // Ensure y-axis starts at 1
                 grid: {
                     color: "rgba(255, 255, 255, 0.1)"
+                },
+                ticks: {
+                    stepSize: 0.2, // Set y-axis step size to 0.2
+                    callback: function(value) {
+                        return value.toFixed(1); // Format y-axis labels to one decimal place
+                    }
                 }
             }
         },
@@ -142,9 +152,7 @@ function showError(message) {
 function hideAllButtonsExceptCashOut() {
     betAmountInput.style.display = "none"; // Hide Enter Bet Amount input
     bet100Button.style.display = "none";
-    bet500Button.style.display = "none";
     bet1000Button.style.display = "none";
-    betHalfBalanceButton.style.display = "none";
     placeBetButton.style.display = "none";
     skipToCrashButton.style.display = "none";
     watchOnlyButton.style.display = "none";
@@ -155,9 +163,7 @@ function hideAllButtonsExceptCashOut() {
 function showAllButtons() {
     betAmountInput.style.display = "inline-block"; // Show Enter Bet Amount input
     bet100Button.style.display = "inline-block";
-    bet500Button.style.display = "inline-block";
     bet1000Button.style.display = "inline-block";
-    betHalfBalanceButton.style.display = "inline-block";
     placeBetButton.style.display = "inline-block";
     skipToCrashButton.style.display = "inline-block";
     watchOnlyButton.style.display = "inline-block";
@@ -202,12 +208,11 @@ placeBetButton.addEventListener("click", () => {
 function resetGame() {
     betAmountInput.value = ''; // Clear the bet amount input field
     placeBetButton.textContent = "Place Bet"; // Reset button text to "Place Bet"
+    placeBetButton.classList.remove("play-again"); // Remove play-again class
     resultDisplay.textContent = ''; // Clear result display
     crashPointDisplay.textContent = ''; // Clear crash point display
     // Re-enable all buttons
-    betHalfBalanceButton.disabled = false;
     bet100Button.disabled = false;
-    bet500Button.disabled = false;
     bet1000Button.disabled = false;
     placeBetButton.disabled = false;
     watchOnlyButton.disabled = false;
@@ -233,20 +238,41 @@ bet100Button.addEventListener("click", () => {
     betAmountInput.value = newBetAmount > totalBalance ? totalBalance : newBetAmount;
 });
 
-bet500Button.addEventListener("click", () => {
-    let newBetAmount = (parseFloat(betAmountInput.value) || 0) + 500;
-    betAmountInput.value = newBetAmount > totalBalance ? totalBalance : newBetAmount;
-});
-
 bet1000Button.addEventListener("click", () => {
-    let newBetAmount = (parseFloat(betAmountInput.value) || 0) + 1000;
-    betAmountInput.value = newBetAmount > totalBalance ? totalBalance : newBetAmount;
+    betAmountInput.value = totalBalance; // All In
 });
 
-// Event Listener for Bet Half Balance Button
-betHalfBalanceButton.addEventListener("click", () => {
-    betAmountInput.value = (totalBalance / 2).toFixed(2);
-});
+// Function to Place Bet
+function placeBet() {
+    if (isPlaying) return;
+
+    if (placeBetButton.textContent === "Play Again") {
+        resetGame();
+        return;
+    }
+
+    betAmount = parseFloat(betAmountInput.value);
+    if (isNaN(betAmount) || betAmount <= 0) {
+        showError("Please enter a valid bet amount!");
+        return;
+    }
+
+    if (betAmount > totalBalance) {
+        showError("You cannot bet more than your current balance!");
+        return;
+    }
+
+    // Deduct bet amount from balance
+    totalBalance -= betAmount;
+    updateBalanceDisplay();
+    saveUserData(); // Save the new balance
+
+    crashPointDisplay.textContent = ""; // Clear the previous crash point
+    isWatchingOnly = false; // Reset watch-only mode
+    startGame();
+
+    hideAllButtonsExceptCashOut(); // Hide buttons when game starts
+}
 
 // Start Game Function
 function startGame() {
@@ -257,9 +283,7 @@ function startGame() {
     placeBetButton.disabled = true;
     skipToCrashButton.disabled = !isWatchingOnly; // Enable skip button if watch-only mode
     watchOnlyButton.disabled = true;
-    betHalfBalanceButton.disabled = true; // Disable Bet Half Balance button
     bet100Button.disabled = true; // Disable Bet £100 button
-    bet500Button.disabled = true; // Disable Bet £500 button
     bet1000Button.disabled = true; // Disable Bet £1000 button
     resultDisplay.textContent = "";
 
@@ -277,7 +301,11 @@ function startGame() {
 
         // Update Chart Data
         time += 0.1; // Increment time for x-axis
-        chart.data.labels.push(time.toFixed(1));
+        if (time % 2 === 0) {
+            chart.data.labels.push(time.toFixed(0)); // Add label every 2 seconds
+        } else {
+            chart.data.labels.push(''); // Add empty label for other intervals
+        }
         chart.data.datasets[0].data.push(multiplier.toFixed(2));
         chart.update();
 
@@ -305,19 +333,13 @@ cashOutButton.addEventListener("click", () => {
     placeBetButton.disabled = false;
     watchOnlyButton.disabled = false;
     skipToCrashButton.disabled = true;
-    betHalfBalanceButton.disabled = false; // Enable Bet Half Balance button
     bet100Button.disabled = false; // Enable Bet £100 button
-    bet500Button.disabled = false; // Enable Bet £500 button
     bet1000Button.disabled = false; // Enable Bet £1000 button
 
     let winnings = parseFloat((betAmount * multiplier).toFixed(2)); // Round winnings
-    console.log(`Winnings: ${winnings}`); // Debug
-    totalBalance += winnings;
-    console.log(`Total Balance after cash out: ${totalBalance}`); // Debug
     let profitFromBet = parseFloat((winnings - betAmount).toFixed(2)); // Round profit
-    console.log(`Profit from Bet: ${profitFromBet}`); // Debug
+    totalBalance += winnings;
     profit += profitFromBet; // Update total profit
-    console.log(`Total Profit: ${profit}`); // Debug
     currentUserProfile.totalProfit = profit;
 
     // Update highest cash out if current profit from bet is greater
@@ -328,7 +350,6 @@ cashOutButton.addEventListener("click", () => {
         currentUserProfile.highestCashOutBet = highestCashOutBet;
         currentUserProfile.highestCashOutProfit = highestCashOutProfit;
         currentUserProfile.highestCashOutMultiplier = highestCashOutMultiplier;
-        console.log(`New Highest Cash Out: Bet ${highestCashOutBet}, Profit ${highestCashOutProfit}, Multiplier ${highestCashOutMultiplier}`); // Debug
         updateHighestCashOutDisplay();
     }
 
@@ -337,7 +358,7 @@ cashOutButton.addEventListener("click", () => {
     saveUserData();
 
     resultDisplay.style.color = "lightgreen";
-    resultDisplay.textContent = `You cashed out at x${multiplier.toFixed(2)}, placed a bet of ${formatMoney(betAmount)}, and won ${formatMoney(winnings)}!`;
+    resultDisplay.textContent = `You cashed out at x${multiplier.toFixed(2)}, placed a bet of ${formatMoney(betAmount)}, and won ${formatMoney(winnings)} (${formatMoney(profitFromBet)} in profit)!`;
 
     // Update Stats
     updateUserStats(betAmount, parseFloat(winnings));
@@ -346,6 +367,7 @@ cashOutButton.addEventListener("click", () => {
 
     // Show Play Again button after cash out
     placeBetButton.textContent = "Play Again";
+    placeBetButton.classList.add("play-again"); // Add play-again class
     placeBetButton.style.display = "inline-block";
     cashOutButton.style.display = "none"; // Hide Cash Out button after cash out
 });
@@ -358,9 +380,7 @@ function endGame(instantCrash) {
     placeBetButton.disabled = false;
     skipToCrashButton.disabled = true;
     watchOnlyButton.disabled = false;
-    betHalfBalanceButton.disabled = false; // Enable Bet Half Balance button
     bet100Button.disabled = false; // Enable Bet £100 button
-    bet500Button.disabled = false; // Enable Bet £500 button
     bet1000Button.disabled = false; // Enable Bet £1000 button
 
     betAmountInput.value = ''; // Clear the bet amount input field
@@ -412,11 +432,20 @@ function updateHighestCashOutDisplay() {
 
 // Update Past Crashes Function
 function updatePastCrashes(crashMultiplier) {
-    pastCrashes.unshift(`x${crashMultiplier.toFixed(2)}`);
-    if (pastCrashes.length > 3) {
-        pastCrashes.pop(); // Keep only the last 3 crashes
+    pastCrashes.unshift(crashMultiplier);
+    if (pastCrashes.length > 7) {
+        pastCrashes.pop(); // Keep only the last 7 crashes
     }
-    pastCrashList.textContent = pastCrashes.join("   ");
+    pastCrashList.innerHTML = pastCrashes.map(crash => {
+        const crashValue = `x${crash.toFixed(2)}`;
+        let crashClass = 'highlight-blue'; // Default to blue
+        if (crash >= 10) {
+            crashClass = 'highlight-green';
+        } else if (crash < 2) {
+            crashClass = 'highlight-red';
+        }
+        return `<span class="${crashClass}">${crashValue}</span>`;
+    }).join("   ");
 }
 
 // Function to Update User Stats
@@ -465,18 +494,29 @@ skipToCrashButton.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    const navToggle = document.getElementById("mobile-menu");
+    const mobileMenu = document.getElementById("mobile-menu");
     const navMenu = document.getElementById("nav-menu");
+    const toggleInfoButton = document.getElementById("toggle-info-button");
+    const toggleInfoElements = document.querySelectorAll(".toggle-info");
 
-    navToggle.addEventListener("click", () => {
+    // Initialize aria-expanded to false
+    mobileMenu.setAttribute("aria-expanded", "false");
+
+    mobileMenu.addEventListener("click", () => {
         navMenu.classList.toggle("active");
+        const expanded = mobileMenu.getAttribute("aria-expanded") === "true" || false;
+        mobileMenu.setAttribute("aria-expanded", !expanded);
     });
 
-    // Close the mobile menu when a link is clicked
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener("click", () => {
-            navMenu.classList.remove("active");
+    // Set initial state of the toggleInfoButton based on the display state of the toggle-info elements
+    const isInfoVisible = Array.from(toggleInfoElements).some(element => element.style.display === "block");
+    toggleInfoButton.textContent = isInfoVisible ? "Hide Info" : "Show More Info";
+
+    // Toggle Info Button Event Listener
+    toggleInfoButton.addEventListener("click", () => {
+        toggleInfoElements.forEach(element => {
+            element.style.display = element.style.display === "none" ? "block" : "none";
         });
+        toggleInfoButton.textContent = toggleInfoButton.textContent === "Show More Info" ? "Hide Info" : "Show More Info";
     });
 });
