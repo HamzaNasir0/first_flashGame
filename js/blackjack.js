@@ -42,8 +42,8 @@ const closeModalButton = document.getElementById("close-modal");
 const modalMessage = document.getElementById("modal-message");
 
 // Audio Elements
-const winSound = new Audio('sounds/win-sound.mp3');
-const loseSound = new Audio('sounds/lose-sound.mp3');
+// const winSound = new Audio('sounds/win-sound.mp3');
+// const loseSound = new Audio('sounds/lose-sound.mp3');
 
 // Initialize the game
 function initializeGame() {
@@ -59,37 +59,6 @@ function initializeGame() {
     mobileMenu.addEventListener('click', () => {
         navMenu.classList.toggle('active');
         mobileMenu.classList.toggle('open'); // Animates the hamburger icon
-    });
-    updateModernUI();
-}
-
-// Update the UI to a more modern look
-function updateModernUI() {
-    document.body.style.background = 'linear-gradient(to right, #0f2027, #203a43, #2c5364)';
-    document.querySelector('.blackjack-game').style.background = 'rgba(255, 255, 255, 0.1)';
-    document.querySelector('.blackjack-game').style.backdropFilter = 'blur(10px)';
-    document.querySelector('.blackjack-game').style.border = '1px solid rgba(255, 255, 255, 0.3)';
-    document.querySelector('.blackjack-game').style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.1)';
-    document.querySelector('.blackjack-game').style.borderRadius = '20px';
-    document.querySelector('.blackjack-game').style.padding = '20px';
-    document.querySelector('.blackjack-game').style.color = '#ffffff';
-    document.querySelectorAll('button').forEach(button => {
-        button.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)';
-        button.style.border = 'none';
-        button.style.borderRadius = '20px';
-        button.style.color = '#ffffff';
-        button.style.padding = '10px 20px';
-        button.style.margin = '10px';
-        button.style.cursor = 'pointer';
-        button.style.transition = 'background 0.3s ease';
-    });
-    document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('mouseover', () => {
-            button.style.background = 'linear-gradient(to right, #ff4b2b, #ff416c)';
-        });
-        button.addEventListener('mouseout', () => {
-            button.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)';
-        });
     });
 }
 
@@ -172,6 +141,7 @@ function handleChipClick() {
 
     bettingArea.innerHTML = `Betting Area: £${currentBet.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
     playButton.style.display = "block"; // Show play button once bet is placed
+    restartButton.style.display = "block"; // Ensure restart button is displayed
 }
 
 // Load User Profile from localStorage
@@ -193,7 +163,6 @@ function loadUserProfile() {
         userIndex = 0;
         localStorage.setItem("currentUserIndex", userIndex);
         localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-        console.log("Initialized default user profile.");
     }
 
     const currentUserProfile = userProfiles[userIndex];
@@ -208,8 +177,6 @@ function loadUserProfile() {
     totalWins = parseInt(currentUserProfile.totalWins) || 0;
     totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
     totalBets = parseFloat(currentUserProfile.totalBets) || 0;
-
-    console.log(`Loaded user profile:`, currentUserProfile);
 }
 
 // Update User Profile in localStorage
@@ -235,7 +202,7 @@ function updateUserProfile() {
 function updateStatisticsDisplay() {
     profitDisplay.textContent = `Total Profit: £${totalProfit.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
     balanceDisplay.textContent = `£${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    document.getElementById("total-wins").textContent = `Total Wins: ${totalWins}`;
+    document.getElementById("total-wins").textContent = `Games won: ${totalWins}`;
     document.getElementById("total-losses").textContent = `Total Losses: £${totalLosses.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
     document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
 }
@@ -278,6 +245,9 @@ function dealInitialCards() {
         openModal("Please place a bet before playing!");
         return;
     }
+
+    // Hide the betting area when the game starts
+    bettingArea.style.display = "none";
 
     // Reset Hands
     dealerHand = [];
@@ -339,7 +309,6 @@ function getCardName(card) {
     };
     const suit = suitMap[card.suit];
     const imagePath = `img/${suit}${value}.png`;
-    console.log(`Card image path: ${imagePath}`); // Debugging line
     return `<span class="card"><img src="${imagePath}" alt="${value} of ${suit}" class="card-img"></span>`;
 }
 
@@ -366,7 +335,6 @@ function calculateHandValue(hand) {
         aceCount -= 1;
     }
 
-    console.log(`Hand: ${hand.map(card => card.value).join(', ')} | Total: ${value}`); // Debugging line
     return value;
 }
 
@@ -421,22 +389,25 @@ function announceWinner(winner) {
     gameInProgress = false;
 
     if (winner === "player") {
-        resultDisplay.style.color = "lightgreen";
+        resultDisplay.classList.remove("dealer-wins");
+        resultDisplay.classList.add("result-display");
         resultDisplay.textContent = "You win!";
-        winSound.play();
+        // winSound.play();
 
-        totalWins += 1;
+        totalWins += 1; // Increment total wins count
         totalProfit += currentBet;
         totalBalance += currentBet * 2; // Player gets their bet back plus winnings
     } else if (winner === "dealer") {
-        resultDisplay.style.color = "red";
+        resultDisplay.classList.remove("result-display");
+        resultDisplay.classList.add("dealer-wins");
         resultDisplay.textContent = "Dealer wins!";
-        loseSound.play();
+        // loseSound.play();
 
         totalLosses += currentBet;
         // Player already lost the bet when placing it
     } else if (winner === "tie") {
-        resultDisplay.style.color = "yellow";
+        resultDisplay.classList.remove("dealer-wins");
+        resultDisplay.classList.add("result-display");
         resultDisplay.textContent = "It's a tie!";
         totalBalance += currentBet; // Refund the bet
     }
@@ -449,11 +420,14 @@ function announceWinner(winner) {
     currentBet = 0;
     bettingArea.innerHTML = `Betting Area: Place Your Bets!`;
 
+    // Hide the betting area and chips after the game ends
+    bettingArea.style.display = "none";
+    chipsSection.style.display = "none";
+
     // Update UI
     hitButton.style.display = "none";
     standButton.style.display = "none";
     restartButton.style.display = "block";
-    chipsSection.style.display = "block";
     playButton.style.display = "none"; // Hide play button until a new bet is placed
 
     // Check if player is out of balance
@@ -487,6 +461,7 @@ function restartGame() {
     playButton.style.display = "none";
     restartButton.style.display = "none";
     chipsSection.style.display = "block";
+    bettingArea.style.display = "block"; // Show the betting area when restarting
 }
 
 // Reset Game State
@@ -529,7 +504,6 @@ function openModal(message) {
 function resetLocalStorage() {
     localStorage.removeItem("userProfiles");
     localStorage.removeItem("currentUserIndex");
-    console.log("LocalStorage has been reset.");
 }
 resetLocalStorage();
 */
