@@ -13,18 +13,18 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="welcome.html" class="nav-logo">Game Suite</a>
-            <div class="nav-toggle" id="mobile-menu">
+            <!-- Update the navigation toggle button with ARIA attributes -->
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
                 <span class="burger"></span>
                 <span class="burger"></span>
                 <span class="burger"></span>
-            </div>
+            </button>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item"><a href="blackjack.html" class="nav-link">Blackjack</a></li>
                 <li class="nav-item"><a href="rocket-crash.html" class="nav-link">Rocket Crash</a></li>
                 <li class="nav-item"><a href="Scratch_Win.html" class="nav-link">Scratch</a></li>
                 <li class="nav-item"><a href="welcome.html" class="nav-link">User</a></li>
             </ul>
-            
         </div>
     </nav>
 
@@ -118,9 +118,9 @@
         <!-- User Statistics Section -->
         <section id="statistics" class="statistics">
             <h3>Game Statistics</h3>
-            <p id="total-wins" class="stats-item hidden">Total Wins: <span id="wins-value">0</span></p>
-            <p id="total-losses" class="stats-item hidden">Total Losses: <span id="losses-value">0</span></p>
-            <p id="total-bets" class="stats-item hidden">Total Bets Placed: £<span id="bets-value">0</span></p>
+            <p id="total-wins" class="stats-item">Total Wins: <span id="wins-value">0</span></p>
+            <p id="total-losses" class="stats-item">Total Losses: <span id="losses-value">0</span></p>
+            <p id="total-bets" class="stats-item">Total Bets Placed: £<span id="bets-value">0</span></p>
         </section>
     </main>
 
