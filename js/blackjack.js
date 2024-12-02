@@ -20,7 +20,7 @@ let totalBets = 0;
 let gameInProgress = false;
 
 // HTML Elements
-const mobileMenu = document.getElementById('mobile-menu');
+const mobileMenu = document.getElementById('nav-toggle'); 
 const navMenu = document.getElementById('nav-menu');
 const dealerCards = document.getElementById("dealer-cards");
 const dealerTotalValue = document.getElementById("dealer-total-value");
@@ -59,6 +59,37 @@ function initializeGame() {
     mobileMenu.addEventListener('click', () => {
         navMenu.classList.toggle('active');
         mobileMenu.classList.toggle('open'); // Animates the hamburger icon
+    });
+    updateModernUI();
+}
+
+// Update the UI to a more modern look
+function updateModernUI() {
+    document.body.style.background = 'linear-gradient(to right, #0f2027, #203a43, #2c5364)';
+    document.querySelector('.blackjack-game').style.background = 'rgba(255, 255, 255, 0.1)';
+    document.querySelector('.blackjack-game').style.backdropFilter = 'blur(10px)';
+    document.querySelector('.blackjack-game').style.border = '1px solid rgba(255, 255, 255, 0.3)';
+    document.querySelector('.blackjack-game').style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.1)';
+    document.querySelector('.blackjack-game').style.borderRadius = '20px';
+    document.querySelector('.blackjack-game').style.padding = '20px';
+    document.querySelector('.blackjack-game').style.color = '#ffffff';
+    document.querySelectorAll('button').forEach(button => {
+        button.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)';
+        button.style.border = 'none';
+        button.style.borderRadius = '20px';
+        button.style.color = '#ffffff';
+        button.style.padding = '10px 20px';
+        button.style.margin = '10px';
+        button.style.cursor = 'pointer';
+        button.style.transition = 'background 0.3s ease';
+    });
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('mouseover', () => {
+            button.style.background = 'linear-gradient(to right, #ff4b2b, #ff416c)';
+        });
+        button.addEventListener('mouseout', () => {
+            button.style.background = 'linear-gradient(to right, #ff416c, #ff4b2b)';
+        });
     });
 }
 
@@ -137,6 +168,8 @@ function handleChipClick() {
     totalBets += betValue;
 
     updateStatisticsDisplay();
+    updateUserProfile(); // Save balance changes immediately
+
     bettingArea.innerHTML = `Betting Area: £${currentBet.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
     playButton.style.display = "block"; // Show play button once bet is placed
 }
@@ -165,7 +198,13 @@ function loadUserProfile() {
 
     const currentUserProfile = userProfiles[userIndex];
     totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
-    totalBalance = parseFloat(currentUserProfile.totalBalance) || 500; // Default to 500 if not set
+    
+    // Remove the logical OR to allow totalBalance to be zero
+    totalBalance = parseFloat(currentUserProfile.totalBalance);
+    if (isNaN(totalBalance)) {
+        totalBalance = 500; // Default to 500 if not set
+    }
+    
     totalWins = parseInt(currentUserProfile.totalWins) || 0;
     totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
     totalBets = parseFloat(currentUserProfile.totalBets) || 0;
@@ -310,7 +349,7 @@ function calculateHandValue(hand) {
     let aceCount = 0;
 
     for (let card of hand) {
-        let cardValue = parseInt(card.value);
+        let cardValue = parseInt(card.value, 10);
         if (cardValue >= 11 && cardValue <= 13) {
             value += 10; // Face cards
         } else if (cardValue === 1) {
@@ -327,6 +366,7 @@ function calculateHandValue(hand) {
         aceCount -= 1;
     }
 
+    console.log(`Hand: ${hand.map(card => card.value).join(', ')} | Total: ${value}`); // Debugging line
     return value;
 }
 
@@ -419,6 +459,8 @@ function announceWinner(winner) {
     // Check if player is out of balance
     if (totalBalance <= 0) {
         openModal("You have run out of balance! Please restart the game.");
+        // Add class to modal for specific styling
+        modal.classList.add("out-of-balance");
     }
 }
 
@@ -473,24 +515,11 @@ function clearCardDisplay() {
 function openModal(message) {
     modalMessage.textContent = message;
     modal.style.display = "flex";
-}
-
-// Update User Profile in localStorage
-function updateUserProfile() {
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
-
-    if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
-        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2);
-        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
-        userProfiles[userIndex].totalWins = totalWins;
-        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2);
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
-
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-        updateStatisticsDisplay(); // Ensure the display is updated
+    
+    if (message === "You have run out of balance! Please restart the game.") {
+        modal.classList.add("out-of-balance");
     } else {
-        console.error("Invalid user index. Cannot update user profile.");
+        modal.classList.remove("out-of-balance");
     }
 }
 
