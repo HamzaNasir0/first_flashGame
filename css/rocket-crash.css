@@ -1,7 +1,7 @@
 /* General Page Styling */
 body {
-    font-family: 'Trebuchet MS', Arial, sans-serif;
-    background: #2e8b57; /* Dark green background */
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #2e8b57 0%, #004e92 100%); /* Modern gradient background */
     color: #ffffff;
     text-align: center;
     margin: 0;
@@ -11,6 +11,13 @@ body {
     align-items: center;
     justify-content: flex-start;
     overflow-x: hidden; /* Prevent horizontal scrolling */
+    animation: backgroundAnimation 10s ease infinite; /* Subtle background animation */
+}
+
+@keyframes backgroundAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* Navigation Bar Styling */
@@ -121,13 +128,15 @@ body {
 /* Main Game Area Styling */
 .rocket-crash-game {
     margin-top: 80px; /* Avoid overlap with the navbar */
-    background: radial-gradient(circle at center, #000428, #004e92); /* Blue gradient */
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
     padding: 30px;
     border-radius: 25px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* Depth effect */
-    width: 450px;
-    max-width: 90%;
+    width: 100%;
+    max-width: 600px;
     text-align: center;
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
 }
 
 /* Title Styling */
