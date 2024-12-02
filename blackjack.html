@@ -24,11 +24,8 @@
                 <li class="nav-item"><a href="Scratch_Win.html" class="nav-link">Scratch</a></li>
                 <li class="nav-item"><a href="welcome.html" class="nav-link">User</a></li>
             </ul>
-            
         </div>
     </nav>
-
-
 
     <!-- Main Game Area -->
     <main class="blackjack-game">
@@ -36,25 +33,26 @@
 
         <!-- Dealer's Hand Section -->
         <section id="dealer-hand" class="hand">
-            <p>Dealer's Hand:</p>
-            <div id="dealer-cards"></div>
-            <p id="dealer-total-value">Dealer's Total:</p>
+            <h2>Dealer's Hand</h2>
+            <div id="dealer-cards" class="card-container"></div>
+            <p id="dealer-total-value">Dealer's Total: 0</p>
         </section>
 
         <!-- Player's Hand Section -->
         <section id="player-hand" class="hand">
-            <p>Your Hand:</p>
-            <div id="player-cards"></div>
-            <p id="player-total-value">Your Total:</p>
+            <h2>Your Hand</h2>
+            <div id="player-cards" class="card-container"></div>
+            <p id="player-total-value">Your Total: 0</p>
         </section>
 
         <!-- User Balance Section -->
         <section id="balance-display" class="balance-display">
-            Total Balance: <span id="total-balance">0.00</span>
+            <h3>Total Balance: £<span id="total-balance">0.00</span></h3>
         </section>
 
         <!-- Betting Chips Section -->
         <section id="chips-area" class="chips-section">
+            <h3>Place Your Bets</h3>
             <div class="chip-container">
                 <img id="chip-1" class="chip" src="img/chip_smallblind_top.png" data-value="1" alt="£1 Chip" draggable="true">
                 <p>£1</p>
@@ -88,28 +86,24 @@
                 <p>All In</p>
             </div>
         </section>
-        
-
 
         <!-- Betting Area -->
         <section id="chips" class="betting-area">
-            Betting Area: Drop Your Bets Here!
+            <h3>Betting Area</h3>
+            <p>Drop Your Bets Here! Current Bet: £<span id="current-bet">0</span></p>
         </section>
 
         <!-- Control Buttons -->
         <section class="controls">
-            <!-- Play Button: Appears after placing bets -->
             <button id="play-button" class="play-button" style="display: none;">Play</button>
-
-            <!-- Hit and Stand Buttons: Only show after clicking Play -->
-            <button id="hit-button" style="display: none;">Hit</button>
-            <button id="stand-button" style="display: none;">Stand</button>
-            <button id="restart-button">Restart</button>
+            <button id="hit-button" class="action-button" style="display: none;">Hit</button>
+            <button id="stand-button" class="action-button" style="display: none;">Stand</button>
+            <button id="restart-button" class="restart-button">Restart</button>
         </section>
 
         <!-- Total Profit Display -->
         <section id="total-profit" class="profit-display">
-            Total Profit: £0
+            <h3>Total Profit: £<span id="profit-value">0</span></h3>
         </section>
 
         <!-- Result Display -->
@@ -118,9 +112,9 @@
         <!-- User Statistics Section -->
         <section id="statistics" class="statistics">
             <h3>Game Statistics</h3>
-            <p id="total-wins" class="stats-item hidden">Total Wins: <span id="wins-value">0</span></p>
-            <p id="total-losses" class="stats-item hidden">Total Losses: <span id="losses-value">0</span></p>
-            <p id="total-bets" class="stats-item hidden">Total Bets Placed: £<span id="bets-value">0</span></p>
+            <p id="total-wins" class="stats-item">Total Wins: <span id="wins-value">0</span></p>
+            <p id="total-losses" class="stats-item">Total Losses: <span id="losses-value">0</span></p>
+            <p id="total-bets" class="stats-item">Total Bets Placed: £<span id="bets-value">0</span></p>
         </section>
     </main>
 
