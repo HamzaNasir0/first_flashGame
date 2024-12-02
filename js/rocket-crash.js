@@ -138,6 +138,32 @@ function showError(message) {
     }, 3000); // Hide after 3 seconds
 }
 
+// Function to hide all buttons except Cash Out
+function hideAllButtonsExceptCashOut() {
+    betAmountInput.style.display = "none"; // Hide Enter Bet Amount input
+    bet100Button.style.display = "none";
+    bet500Button.style.display = "none";
+    bet1000Button.style.display = "none";
+    betHalfBalanceButton.style.display = "none";
+    placeBetButton.style.display = "none";
+    skipToCrashButton.style.display = "none";
+    watchOnlyButton.style.display = "none";
+    cashOutButton.style.display = "inline-block";
+}
+
+// Function to show all buttons
+function showAllButtons() {
+    betAmountInput.style.display = "inline-block"; // Show Enter Bet Amount input
+    bet100Button.style.display = "inline-block";
+    bet500Button.style.display = "inline-block";
+    bet1000Button.style.display = "inline-block";
+    betHalfBalanceButton.style.display = "inline-block";
+    placeBetButton.style.display = "inline-block";
+    skipToCrashButton.style.display = "inline-block";
+    watchOnlyButton.style.display = "inline-block";
+    cashOutButton.style.display = "none"; // Hide Cash Out button initially
+}
+
 // Place Bet Button Event Listener
 placeBetButton.addEventListener("click", () => {
     if (isPlaying) return;
@@ -169,7 +195,7 @@ placeBetButton.addEventListener("click", () => {
     isWatchingOnly = false; // Reset watch-only mode
     startGame();
 
-    placeBetButton.textContent = "Play Again"; // Change button text to "Play Again"
+    hideAllButtonsExceptCashOut(); // Hide buttons when game starts
 });
 
 // Function to Reset Game
@@ -187,6 +213,8 @@ function resetGame() {
     watchOnlyButton.disabled = false;
     skipToCrashButton.disabled = true;
     cashOutButton.disabled = true;
+    cashOutButton.style.display = "none"; // Hide Cash Out button when game resets
+    showAllButtons(); // Show all buttons when game resets
 }
 
 // Watch Only Button Event Listener
@@ -309,12 +337,17 @@ cashOutButton.addEventListener("click", () => {
     saveUserData();
 
     resultDisplay.style.color = "lightgreen";
-    resultDisplay.textContent = `You cashed out at x${multiplier.toFixed(2)} and won ${formatMoney(winnings)}!`;
+    resultDisplay.textContent = `You cashed out at x${multiplier.toFixed(2)}, placed a bet of ${formatMoney(betAmount)}, and won ${formatMoney(winnings)}!`;
 
     // Update Stats
     updateUserStats(betAmount, parseFloat(winnings));
     crashPointDisplay.textContent = `The rocket would have crashed at x${crashMultiplier.toFixed(2)}.`;
     updatePastCrashes(crashMultiplier);
+
+    // Show Play Again button after cash out
+    placeBetButton.textContent = "Play Again";
+    placeBetButton.style.display = "inline-block";
+    cashOutButton.style.display = "none"; // Hide Cash Out button after cash out
 });
 
 // End Game Function
@@ -355,6 +388,7 @@ function endGame(instantCrash) {
     }
 
     updatePastCrashes(crashMultiplier);
+    showAllButtons(); // Show all buttons after skipping to crash
 }
 
 // Update Multiplier Display Function
@@ -368,7 +402,7 @@ function updateProfitDisplay() {
 }
 
 function updateBalanceDisplay() {
-    balanceDisplay.textContent = `Current Balance: ${formatMoney(totalBalance)}`;
+    balanceDisplay.innerHTML = `Current Balance: <span class="money">${formatMoney(totalBalance)}</span>`;
 }
 
 // Update Highest Cash Out Display Function
@@ -427,6 +461,7 @@ skipToCrashButton.addEventListener("click", () => {
     multiplier = crashMultiplier;     // Set the multiplier to crash point
     updateMultiplierDisplay();        // Update the display
     endGame(false);                   // Call the endGame logic
+    showAllButtons(); // Show all buttons after skipping to crash
 });
 
 document.addEventListener("DOMContentLoaded", () => {
