@@ -1,17 +1,33 @@
+:root {
+    --primary-color: #2e8b57;
+    --secondary-color: #004e92;
+    --accent-color: #ffd700;
+    --text-color: #ffffff;
+    --dark-bg: #333;
+    --success-color: #3cb371;
+    --warning-color: #ffa500;
+    --danger-color: #b22222;
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+    --nav-height: 60px;
+    --nav-bg: rgba(51, 51, 51, 0.95);
+    --nav-mobile-bg: rgba(51, 51, 51, 0.98);
+}
+
 /* General Page Styling */
 body {
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #2e8b57 0%, #004e92 100%); /* Modern gradient background */
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--text-color);
     text-align: center;
     margin: 0;
     min-height: 100vh;
     display: flex;
-    flex-direction: column; /* Ensure navbar stays on top */
+    flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    animation: backgroundAnimation 10s ease infinite; /* Subtle background animation */
+    overflow-x: hidden;
+    animation: backgroundAnimation 10s ease infinite;
 }
 
 @keyframes backgroundAnimation {
@@ -22,138 +38,291 @@ body {
 
 /* Navigation Bar Styling */
 .navbar {
-    background-color: #333; /* Dark background for the navbar */
-    color: #f1c40f; /* Gold text for branding */
-    padding: 10px 20px; /* Adjusted padding */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
+    background-color: var(--nav-bg);
+    padding: 15px 20px;
     z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Container inside Navbar */
 .nav-container {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
-    margin-right: 40px;
+    max-width: 1200px;
 }
 
 .nav-logo {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #f1c40f;
+    color: var(--accent-color);
     text-decoration: none;
-    margin-right: auto; /* Ensure the logo stays aligned to the left */
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .nav-menu {
-    list-style: none;
     display: flex;
-    gap: 20px;
+    list-style: none;
     margin: 0;
     padding: 0;
 }
 
 .nav-item {
-    position: relative;
+    margin: 0 15px;
 }
 
 .nav-link {
+    color: var(--text-color);
     text-decoration: none;
-    color: #ffffff;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 18px;
+    transition: var(--transition);
 }
 
-.nav-link:hover {
-    background-color: #444;
-    color: #ffd700; /* Gold for hover effect */
-    transform: scale(1.05);
+.nav-link:hover,
+.nav-link.active {
+    color: var(--accent-color);
 }
 
-/* Mobile Navigation */
-@media (max-width: 768px) {
-    .nav-toggle {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
 
-    .burger {
-        background-color: #fff;
-        height: 3px;
-        width: 25px;
-        margin: 4px 0;
-        transition: all 0.3s ease; /* Smooth animation */
-    }
+.burger {
+    width: 25px;
+    height: 3px;
+    background-color: var(--text-color);
+    margin: 4px 0;
+    transition: var(--transition);
+}
 
+@media screen and (max-width: 768px) {
     .nav-menu {
-        display: none; /* Hidden by default */
+        display: none;
         flex-direction: column;
-        background-color: #333;
+        width: auto; /* Change to auto to avoid full width */
         position: absolute;
-        top: 60px; /* Below the navbar */
-        right: 0;
-        width: 200px;
-        padding: 10px;
-        border-radius: 5px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        top: 60px;
+        right: 20px; /* Align to the right */
+        background-color: var(--nav-mobile-bg);
+        padding: 20px;
+        border-radius: var(--border-radius); /* Add border radius for better appearance */
     }
 
     .nav-menu.active {
-        display: flex; /* Show when active */
+        display: flex;
     }
 
     .nav-item {
+        margin: 10px 0;
+    }
+
+    .nav-toggle {
+        display: flex;
+    }
+}
+
+/* Remove duplicated .navbar styles */
+/*
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: var(--nav-bg);
+    padding: 15px 20px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar ul li {
+    margin: 0 15px;
+}
+
+.navbar ul li a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 18px;
+    transition: var(--transition);
+}
+
+.navbar ul li a:hover,
+.navbar ul li a.active {
+    color: var(--accent-color);
+}
+
+@media screen and (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
         padding: 10px 20px;
     }
 
-    .nav-link {
-        color: #ffff;
+    .navbar .logo a {
+        font-size: 20px;
     }
+
+    .navbar ul {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .navbar ul li {
+        margin: 10px 0;
+    }
+
+    .navbar ul li a {
+        font-size: 16px;
+    }
+}
+*/
+
+/* Remove .nav-links styles as they are not used in HTML */
+/*
+.nav-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--nav-mobile-bg);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.nav-links.active {
+    transform: translateX(0);
+}
+*/
+
+/* Update Hamburger Animation to use .burger */
+.nav-toggle[aria-expanded="true"] .burger {
+    background: transparent;
+}
+
+.nav-toggle[aria-expanded="true"] .burger::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.nav-toggle[aria-expanded="true"] .burger::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+/* Hamburger Icon */
+.hamburger {
+    width: 24px;
+    height: 2px;
+    background: var(--text-color);
+    position: relative;
+    transition: var(--transition);
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background: var(--text-color);
+    transition: var(--transition);
+}
+
+.hamburger::before { top: -8px; }
+.hamburger::after { bottom: -8px; }
+
+/* Mobile Styles */
+
+/* Adjust main content spacing */
+main {
+    margin-top: var(--nav-height);
+}
+
+/* Rocket Crash Container */
+.rocket-crash-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
 }
 
 /* Main Game Area Styling */
 .rocket-crash-game {
-    margin-top: 80px; /* Avoid overlap with the navbar */
-    background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
-    padding: 30px;
-    border-radius: 25px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* Depth effect */
-    width: 100%;
-    max-width: 600px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin: 4rem auto 1rem; /* Adjusted margins to reduce space */
+    max-width: 800px;
+    width: 90%;
     text-align: center;
-    margin-left: auto; /* Center horizontally */
-    margin-right: auto; /* Center horizontally */
+    position: relative;
+    min-height: 600px; /* Set a fixed minimum height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Past Crashes Container */
+.past-crashes-container {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    max-width: 200px;
+    width: 100%;
+    text-align: center;
+    overflow-y: auto;
+    max-height: 400px;
+    position: relative;
+    margin-left: 20px; /* Adjust this value to attach it closely */
+}
+
+.past-crashes-container h2 {
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 /* Title Styling */
 h1 {
-    color: #ffd700; /* Gold for premium effect */
+    color: var(--accent-color);
     font-weight: bold;
     margin-bottom: 20px;
 }
 
 /* Graph Container Styling */
 #graph-container {
+    aspect-ratio: 16/9;
+    margin: 1.5rem 0;
+    border: 2px solid var(--accent-color);
+    border-radius: var(--border-radius);
     position: relative;
-    margin-bottom: 20px;
-    padding-bottom: 40px;
-    overflow: visible;
-    border: 2px solid #ffd700;
-    border-radius: 10px;
+    flex-grow: 1; /* Allow the graph container to grow */
 }
 
 /* Past Crashes Styling */
@@ -162,52 +331,158 @@ h1 {
     bottom: -30px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 14px;
-    color: #ffa500; /* Bright orange */
+    font-size: 16px;
+    color: var(--warning-color);
     font-weight: bold;
     padding: 5px 10px;
-    white-space: nowrap; /* Keep on one line */
+    white-space: nowrap;
 }
 
 /* Multiplier Text Styling */
 .multiplier-text {
-    font-size: 32px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: bold;
-    color: #ffd700;
+    color: var(--accent-color);
     margin-bottom: 20px;
+}
+
+/* Highlight crash multipliers over 10x in green */
+.highlight-green {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+/* Highlight crash multipliers less than 2x in red */
+.highlight-red {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* Highlight other crash multipliers in blue */
+.highlight-blue {
+    color: var(--secondary-color);
+    font-weight: bold;
 }
 
 /* Current Balance Styling */
 #current-balance {
     font-size: 18px;
     font-weight: bold;
-    color: #ffd700; /* Gold color */
+    color: var(--accent-color);
     margin-bottom: 10px;
 }
 
 #current-balance .money {
-    color: #00ff00; /* Green color for money */
+    color: var(--success-color);
 }
 
 /* Highest Cash Out Styling */
 #highest-cash-out {
     font-size: 18px;
     font-weight: bold;
-    color: #ffd700; /* Gold color */
+    color: var(--accent-color);
     margin-top: 10px;
 }
 
 /* Buttons General Styling */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+
+.button-group input,
+.button-group button {
+    flex: 1 1 100%;
+    max-width: 300px;
+}
+
+/* Center Cash Out and Play Again buttons */
+#cash-out-button,
+#place-bet-button.play-again {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Make input and place bet button span full width */
+.button-group input,
+#place-bet-button,
+#cash-out-button {
+    flex: 1 1 100%;
+    max-width: 300px;
+}
+
+@media screen and (max-width: 768px) {
+    .button-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    /* Ensure centered buttons in mobile mode */
+    #cash-out-button,
+    #place-bet-button.play-again {
+        grid-column: span 2;
+    }
+
+    .rocket-crash-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .past-crashes-container {
+        position: static;
+        max-width: 90%;
+        margin-top: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .rocket-crash-game {
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 95%;
+    }
+
+    button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    input {
+        width: 120px;
+    }
+
+    .past-crashes-container {
+        max-width: 95%;
+    }
+}
+
+/* Hide additional information by default */
+.toggle-info {
+    display: none;
+}
+
+/* Buttons General Styling */
 button {
-    padding: 10px 20px;
+    padding: 0.75rem 1.25rem;
     margin: 5px;
     cursor: pointer;
     border: none;
-    border-radius: 8px;
-    color: #ffffff;
+    border-radius: var(--border-radius);
+    color: var(--text-color);
     font-size: 16px;
+    font-weight: 600;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.2s;
+    transition: var(--transition);
+    width: 100%;
+    max-width: 200px;
 }
 
 button:hover {
@@ -223,25 +498,25 @@ button:disabled {
 
 /* Place Bet Button */
 #place-bet-button {
-    background-color: #3cb371; /* Light green */
+    background-color: var(--success-color);
 }
 
 #place-bet-button:hover {
-    background-color: #2e8b57; /* Darker green */
+    background-color: #2e8b57;
 }
 
 /* Cash Out Button */
 #cash-out-button {
-    background-color: #ffa500; /* Orange */
+    background-color: var(--warning-color);
 }
 
 #cash-out-button:hover {
-    background-color: #e69500; /* Darker orange */
+    background-color: #e69500;
 }
 
 /* Skip to Crash Button */
 #skip-to-crash-button {
-    background-color: #4682b4; /* Steel blue */
+    background-color: #4682b4;
 }
 
 #skip-to-crash-button:hover {
@@ -250,24 +525,30 @@ button:disabled {
 
 /* Watch Rocket Button */
 #watch-only-button {
-    background-color: #b22222; /* Firebrick red */
+    background-color: var(--danger-color);
 }
 
 #watch-only-button:hover {
-    background-color: #a01e1e; /* Darker red */
+    background-color: #a01e1e;
 }
 
 /* Input Styling */
 input {
-    margin: 10px 0;
+    margin: 5px 0;
     padding: 10px;
     border-radius: 8px;
-    border: 2px solid #ffa500;
-    width: 160px;
+    border: 2px solid var(--warning-color);
+    width: auto;
     text-align: center;
     background-color: #ffffff;
     color: #000000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    max-width: 200px;
+}
+
+/* Bet Input Group Styling */
+.bet-input-group {
+    display: none;
 }
 
 /* Result Display Styling */
@@ -282,7 +563,7 @@ input {
 .crash-point-text {
     margin-top: 5px;
     font-size: 16px;
-    color: #ff0000; /* Red color */
+    color: var(--danger-color);
 }
 
 /* Total Profit */
@@ -290,14 +571,15 @@ input {
     margin-top: 10px;
     font-size: 18px;
     font-weight: bold;
-    color: #ffd700;
+    color: var(--accent-color);
 }
 
 /* Responsive Adjustments */
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 768px) {
     .rocket-crash-game {
-        padding: 20px;
+        padding: 1rem;
         border-radius: 15px;
+        max-width: 90%;
     }
 
     button {
@@ -308,4 +590,30 @@ input {
     input {
         width: 140px;
     }
+
+    .button-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .rocket-crash-game {
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 95%;
+    }
+
+    button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    input {
+        width: 120px;
+    }
+}
+
+/* Hide additional information by default */
+.toggle-info {
+    display: none;
 }
