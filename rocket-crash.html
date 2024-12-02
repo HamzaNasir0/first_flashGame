@@ -22,7 +22,7 @@
                 <li class="nav-item"><a href="Scratch_Win.html" class="nav-link">Scratch</a></li>
                 <li class="nav-item"><a href="welcome.html" class="nav-link">User</a></li>
             </ul>
-            <div class="nav-toggle" id="mobile-menu">
+            <div class="nav-toggle" id="mobile-menu" aria-expanded="false">
                 <span class="burger"></span>
                 <span class="burger"></span>
                 <span class="burger"></span>
@@ -30,41 +30,46 @@
         </div>
     </nav>
 
-    <!-- Rocket Crash Game Main Section -->
-    <div class="container mt-5 d-flex justify-content-center">
-        <div class="rocket-crash-game">
-            <h1>Rocket Crash Game</h1>
-            <!-- Display Current Balance -->
-            <div id="current-balance" class="current-balance-text">Current Balance: £0.00</div>
-            <!-- Graph Container -->
-            <div id="graph-container">
-                <canvas id="multiplier-graph" width="400" height="200"></canvas>
-                <div id="past-crashes" class="past-crashes">
-                    <span>Past Crashes: </span>
-                    <span id="past-crash-list"></span>
+    <main class="container mt-5 justify-content-center">
+        <div class="rocket-crash-container">
+            <!-- Rocket Crash Game -->
+            <div class="rocket-crash-game me-4"> <!-- Add margin to the right -->
+                <h1>Rocket Crash Game</h1>
+                <!-- Display Current Balance -->
+                <div id="current-balance" class="current-balance-text">Current Balance: <span class="money">£1,567.50</span></div>
+                <!-- Graph Container -->
+                <div id="graph-container">
+                    <canvas id="multiplier-graph" width="732" height="410" style="display: block; box-sizing: border-box; height: 410px; width: 732px;"></canvas>
+                    <div id="past-crashes" class="past-crashes">
+                        <span>Past Crashes: </span>
+                        <span id="past-crash-list"></span>
+                    </div>
+                    <!-- Multiplier Display inside Graph Container -->
+                    <p id="multiplier" class="multiplier-text">0.00x</p>
                 </div>
+                <!-- Input and Buttons for Bets and Actions -->
+                <div class="button-group">
+                    <button id="bet-100-button" class="btn btn-primary mb-2">Bet £100</button>
+                    <input type="number" id="bet-amount" class="form-control mb-2" placeholder="Enter Bet Amount">
+                    <button id="place-bet-button" class="btn btn-success mb-2">Place Bet</button>
+                    <button id="bet-1000-button" class="btn btn-primary mb-2">All In</button>
+                    <button id="watch-only-button" class="btn btn-danger mb-2">Watch Rocket</button>
+                    <button id="skip-to-crash-button" class="btn btn-info mb-2" disabled="">Skip to Crash</button>
+                    <button id="cash-out-button" class="btn btn-warning mb-2" style="display: none;">Cash Out</button>
+                </div>
+                <!-- Error Message Display -->
+                <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+                <!-- Result and Profit Display -->
+                <div id="result"></div>
+                <div id="crash-point" class="crash-point-text toggle-info"></div>
+                <div id="rocket-profit" class="toggle-info">Total Profit: £1,067.50</div>
+                <div id="highest-cash-out" class="toggle-info">Highest Cash Out: Bet £890.00, Profit £667.50, at x1.75</div>
+                <!-- Toggle Info Button -->
+                <button id="toggle-info-button" class="btn btn-secondary mt-3 mx-auto d-block">Show More Info</button>
             </div>
-            <!-- Multiplier Display -->
-            <p id="multiplier" class="multiplier-text">0.00x</p>
-            <!-- Input and Buttons for Bets and Actions -->
-            <input type="number" id="bet-amount" class="form-control mb-2" placeholder="Enter Bet Amount">
-            <button id="bet-100-button" class="btn btn-primary mb-2">Bet £100</button>
-            <button id="bet-500-button" class="btn btn-primary mb-2">Bet £500</button>
-            <button id="bet-1000-button" class="btn btn-primary mb-2">Bet £1000</button>
-            <button id="bet-half-balance-button" class="btn btn-secondary mb-2">Bet Half Balance</button>
-            <button id="place-bet-button" class="btn btn-success mb-2">Place Bet</button>
-            <button id="cash-out-button" class="btn btn-warning mb-2" style="display: none;">Cash Out</button>
-            <button id="skip-to-crash-button" class="btn btn-info mb-2" disabled>Skip to Crash</button>
-            <button id="watch-only-button" class="btn btn-danger mb-2">Watch Rocket</button>
-            <!-- Error Message Display -->
-            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
-            <!-- Result and Profit Display -->
-            <div id="result"></div>
-            <div id="crash-point" class="crash-point-text"></div>
-            <div id="rocket-profit">Total Profit: £0</div>
-            <div id="highest-cash-out" class="highest-cash-out-text">Highest Cash Out: £0</div>
         </div>
-    </div>
+    </main>
+    
 
     <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
