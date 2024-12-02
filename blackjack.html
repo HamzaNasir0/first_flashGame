@@ -28,11 +28,13 @@
         </div>
     </nav>
 
-
-
     <!-- Main Game Area -->
     <main class="blackjack-game">
         <h1>Blackjack Game</h1>
+        <!-- Change text to Current Balance and set money color to bright yellow -->
+        <section id="balance-display" class="balance-display">
+            Current Balance: <span id="total-balance">0.00</span>
+        </section>
 
         <!-- Dealer's Hand Section -->
         <section id="dealer-hand" class="hand">
@@ -41,16 +43,14 @@
             <p id="dealer-total-value">Dealer's Total:</p>
         </section>
 
+        <!-- Result Display -->
+        <section id="result" class="result-display"></section>
+
         <!-- Player's Hand Section -->
         <section id="player-hand" class="hand">
             <p>Your Hand:</p>
             <div id="player-cards"></div>
             <p id="player-total-value">Your Total:</p>
-        </section>
-
-        <!-- User Balance Section -->
-        <section id="balance-display" class="balance-display">
-            Total Balance: <span id="total-balance">0.00</span>
         </section>
 
         <!-- Betting Chips Section -->
@@ -60,16 +60,8 @@
                 <p>£1</p>
             </div>
             <div class="chip-container">
-                <img id="chip-5" class="chip" src="img/chip_white_top.png" data-value="5" alt="£5 Chip" draggable="true">
-                <p>£5</p>
-            </div>
-            <div class="chip-container">
                 <img id="chip-10" class="chip" src="img/chip_pink_top.png" data-value="10" alt="£10 Chip" draggable="true">
                 <p>£10</p>
-            </div>
-            <div class="chip-container">
-                <img id="chip-25" class="chip" src="img/chip_biege_top.png" data-value="25" alt="£25 Chip" draggable="true">
-                <p>£25</p>
             </div>
             <div class="chip-container">
                 <img id="chip-50" class="chip" src="img/chip_gray_top.png" data-value="50" alt="£50 Chip" draggable="true">
@@ -88,8 +80,6 @@
                 <p>All In</p>
             </div>
         </section>
-        
-
 
         <!-- Betting Area -->
         <section id="chips" class="betting-area">
@@ -107,20 +97,16 @@
             <button id="restart-button">Restart</button>
         </section>
 
-        <!-- Total Profit Display -->
-        <section id="total-profit" class="profit-display">
-            Total Profit: £0
-        </section>
-
-        <!-- Result Display -->
-        <section id="result" class="result-display"></section>
-
         <!-- User Statistics Section -->
         <section id="statistics" class="statistics">
-            <h3>Game Statistics</h3>
-            <p id="total-wins" class="stats-item">Total Wins: <span id="wins-value">0</span></p>
-            <p id="total-losses" class="stats-item">Total Losses: <span id="losses-value">0</span></p>
-            <p id="total-bets" class="stats-item">Total Bets Placed: £<span id="bets-value">0</span></p>
+            <button id="toggle-stats-button">Game Stats</button>
+            <div id="stats-content" style="display: none;">
+                <h3>Game Statistics</h3>
+                <p id="total-profit">Total Profit: £920.00</p>
+                <p id="total-wins">Games won: 2670</p>
+                <p id="total-losses">Total Losses: £2,400.00</p>
+                <p id="total-bets">Total Bets Placed: £2,700.00</p>
+            </div>
         </section>
     </main>
 
@@ -134,6 +120,12 @@
 
     <!-- Script -->
     <script src="./js/blackjack.js"></script>
+    <script>
+        document.getElementById('toggle-stats-button').addEventListener('click', () => {
+            const statsContent = document.getElementById('stats-content');
+            statsContent.style.display = statsContent.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
 </body>
 
 </html>
