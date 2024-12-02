@@ -37,15 +37,17 @@
                 <h1>Rocket Crash Game</h1>
                 <!-- Display Current Balance -->
                 <div id="current-balance" class="current-balance-text">Current Balance: <span class="money">£1,567.50</span></div>
-                <!-- Graph Container -->
-                <div id="graph-container">
-                    <canvas id="multiplier-graph" width="732" height="410" style="display: block; box-sizing: border-box; height: 410px; width: 732px;"></canvas>
-                    <div id="past-crashes" class="past-crashes">
-                        <span>Past Crashes: </span>
-                        <span id="past-crash-list"></span>
+                <!-- Graph Container Wrapper -->
+                <div id="graph-container-wrapper" class="graph-container-wrapper">
+                    <div id="graph-container">
+                        <canvas id="multiplier-graph" width="732" height="410" style="display: block; box-sizing: border-box; height: 410px; width: 732px;"></canvas>
+                        <div id="past-crashes" class="past-crashes">
+                            <span>Past Crashes: </span>
+                            <span id="past-crash-list"></span>
+                        </div>
+                        <!-- Multiplier Display inside Graph Container -->
+                        <p id="multiplier" class="multiplier-text">0.00x</p>
                     </div>
-                    <!-- Multiplier Display inside Graph Container -->
-                    <p id="multiplier" class="multiplier-text">0.00x</p>
                 </div>
                 <!-- Input and Buttons for Bets and Actions -->
                 <div class="button-group">
