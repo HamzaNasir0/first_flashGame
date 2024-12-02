@@ -1,8 +1,8 @@
 /* General Page Styling */
 body {
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-    color: #ffffff;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* Revert to original background */
+    color: #ffd700; /* Change text color to yellow */
     margin: 0;
     min-height: 100vh;
     padding-top: 70px;
@@ -78,7 +78,7 @@ body {
 
 .nav-link {
     text-decoration: none;
-    color: #ffffff;
+    color: #ffd700; /* Change text color to yellow */
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 16px;
@@ -122,7 +122,7 @@ body {
 
 /* Main Game Area Styling */
 .blackjack-game {
-    background: rgba(255, 255, 255, 0.1);
+    background: #000000; /* Change background to black */
     backdrop-filter: blur(10px);
     padding: 20px;
     border-radius: 20px;
@@ -155,7 +155,7 @@ body {
 #dealer-total, #player-total {
     margin-top: 10px;
     font-size: 16px;
-    color: #e0e0e0;
+    color: #ffd700; /* Change text color to yellow */
 }
 
 @media (max-width: 480px) {
@@ -200,7 +200,7 @@ body {
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
     font-size: 16px;
     font-weight: bold;
-    color: #ffffff;
+    color: #00ff00; /* Change money color to green */
     min-height: 50px;
 }
 
@@ -218,15 +218,17 @@ button {
     cursor: pointer;
     border: none;
     border-radius: 20px;
-    background: linear-gradient(to right, #ff416c, #ff4b2b);
-    color: #ffffff;
+    background: linear-gradient(to right, #ffd700, #ffeb3b); /* Change button color to yellow */
+    color: #000000; /* Change button text color to black */
     font-size: 16px;
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
     transition: background 0.3s ease, transform 0.2s ease;
+    width: auto; /* Ensure buttons take up only the necessary width */
+    min-width: 100px; /* Set a minimum width for consistency */
 }
 
 button:hover {
-    background: linear-gradient(to right, #ff4b2b, #ff416c);
+    background: linear-gradient(to right, #ffeb3b, #ffd700); /* Change button hover color */
     transform: scale(1.05);
     box-shadow: 0 5px 7px rgba(0, 0, 0, 0.3);
 }
@@ -235,7 +237,19 @@ button:hover {
     button {
         padding: 8px 14px;
         font-size: 14px;
+        width: auto; /* Ensure buttons take up only the necessary width */
+        min-width: 80px; /* Set a smaller minimum width for mobile */
     }
+
+    #restart-button, #toggle-stats-button {
+        width: auto; /* Ensure buttons take up only the necessary width */
+        min-width: 80px; /* Set a smaller minimum width for mobile */
+    }
+}
+
+#restart-button, #toggle-stats-button {
+    width: auto; /* Ensure buttons take up only the necessary width */
+    min-width: 100px; /* Set a minimum width for consistency */
 }
 
 /* Cards Styling */
@@ -324,10 +338,7 @@ button:hover {
     }
 }
 
-/* New Keyframes for Pulse Animation */
-@keyframes modal-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+/* New Keyframes 50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
 
@@ -357,6 +368,29 @@ button:hover {
 .chip-container p {
     margin: 5px 0 0;
     font-size: 14px;
-    color: #fff;
+    color: #ffd700; /* Change text color to yellow */
     font-weight: bold;
 }
+
+/* Result Display Styling */
+.result-display {
+    color: #00ff00; /* Change "You win" text color to green */
+}
+
+/* Balance and Statistics Display Styling */
+.balance-display, #total-profit, #total-bets, #total-wins {
+    color: #00ff00; /* Change text color to green */
+}
+
+#total-losses, .dealer-wins {
+    color: #ff0000; /* Change text color to red */
+}
+
+/* Result Display Styling */
+.result-display {
+    color: #00ff00; /* Change "You win" text color to green */
+}
+
+/* ...existing code... */
+/* No changes required as blackjack.css has no design elements to incorporate */
+/* ...existing code... */
