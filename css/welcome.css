@@ -1,5 +1,14 @@
 /* welcome.css */
 
+/* Define CSS Variables for consistent theming */
+:root {
+    --primary-color: #121212;
+    --accent-color: #ffd700;
+    --secondary-color: #3cb371;
+    --error-color: #e60000;
+    --font-family: 'Poppins', Arial, sans-serif;
+}
+
 /* Full height for html and body */
 html,
 body {
@@ -11,8 +20,8 @@ body {
 
 /* General Styling */
 body {
-  font-family: "Poppins", Arial, sans-serif;
-  background: #121212;
+  font-family: var(--font-family);
+  background: var(--primary-color);
   color: #fff;
   text-align: center;
   padding: 0;
@@ -183,7 +192,7 @@ button:hover {
   display: flex;
   transition: transform 0.5s ease-in-out;
   gap: 20px;
-  overflow-x: auto;
+  overflow-x: scroll;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -472,8 +481,6 @@ button:hover {
   transform: scale(1.2); /* Slight zoom effect on hover */
 }
 
-
-
 /* Responsive Design */
 @media (max-width: 768px) {
   /* Navbar Styles */
@@ -515,6 +522,7 @@ button:hover {
   }
   .carousel .game-card {
     transform: scale(0.9);
+    max-width: 90%;
   }
   /* Footer Styles */
   .footer {
