@@ -3,12 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const navMenu = document.getElementById('nav-menu');
 
-    if (mobileMenu && navMenu) {
-        mobileMenu.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            mobileMenu.classList.toggle('open'); // Animates the hamburger icon
-        });
-    }
+    mobileMenu?.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        mobileMenu.classList.toggle('open'); // Animates the hamburger icon
+    });
 
     // Sound Toggle Button
     const soundToggleButton = document.getElementById('sound-toggle');
