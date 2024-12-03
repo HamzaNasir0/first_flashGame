@@ -1,0 +1,430 @@
+/* Add CSS variables for color scheme and fonts */
+:root {
+    --primary-color: #2c5364;
+    --secondary-color: #203a43;
+    --accent-color: #0f2027;
+    --text-color: #ffffff;
+    --button-gradient: linear-gradient(135deg, #6e45e2, #88d3ce);
+    --modal-background: rgba(0, 0, 0, 0.8);
+    --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --button-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --font-family: 'Poppins', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background: var(--accent-color);
+    color: #ffd700;
+    margin: 0;
+    min-height: 100vh;
+    padding-top: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+.navbar {
+    background-color: #333;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+}
+
+.nav-logo {
+    color: #fff;
+    text-decoration: none;
+    font-size: 24px;
+}
+
+.nav-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: none; /* Hide by default */
+    flex-direction: column;
+    justify-content: space-between;
+    height: 24px;
+}
+
+.burger {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+}
+
+.nav-menu {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin-left: 20px;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center the cards horizontally */
+    align-items: center; /* Center the cards vertically */
+    list-style-type: none;
+    padding-left: 0;
+    position: relative;
+}
+
+.grid {
+    width: 100%;
+    max-width: 1170px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Ensure the grid takes full height */
+}
+
+.button-container {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px; /* Space above the buttons */
+    justify-content: center;
+}
+
+.play, .reset, .details {
+    background: var(--button-gradient);
+    border: none;
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: var(--button-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.play:hover, .reset:hover, .details:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.game {
+    width: 100%;
+    max-width: 800px; /* Set a max-width for better centering */
+    height: auto; /* Allow height to adjust based on content */
+    position: relative;
+    margin-top: 20px;
+    border: 2px solid #ffd700;
+    display: flex; /* Ensure Flexbox is enabled */
+    flex-wrap: wrap; /* Allow cards to wrap within the container */
+    justify-content: center; /* Center cards horizontally */
+    align-items: center; /* Center cards vertically */
+    padding: 20px; /* Add padding for better spacing */
+    box-sizing: border-box; /* Include padding in width and height */
+}
+
+.guesses-left {
+    font-size: 18px;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.card {
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    perspective: 1000;
+    width: 140px; /* Adjusted width */
+    height: 190px; /* Adjusted height */
+    background-color: #000; /* Initially black */
+    margin: 10px; /* Adjusted margin for spacing */
+    opacity: 0; /* Initially hidden */
+    transform: scale(0.8); /* Initially scaled down */
+    box-shadow: var(--card-shadow);
+    border-radius: 10px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    position: relative; /* For positioning the cross image */
+}
+
+.card.visible {
+    opacity: 1; /* Make visible */
+    transform: scale(1); /* Scale up to original size */
+}
+
+.card.flipped {
+    background-color: #eee; /* Change background color when flipped */
+}
+
+.card[data-card="joker"].flipped {
+    background-image: url('./images/joker.png');
+}
+
+.card[data-card="joker"].flipped::after {
+    content: '🃏'; /* Unicode character for Joker */
+    font-size: 48px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.card[data-card="card1"].flipped {
+    background-image: url('./images/card1.png');
+}
+
+.card[data-card="card2"].flipped {
+    background-image: url('./images/card2.png');
+}
+
+.card[data-card="card3"].flipped {
+    background-image: url('./images/card3.png');
+}
+
+.card[data-card="card4"].flipped {
+    background-image: url('./images/card4.png');
+}
+
+.card[data-card="card5"].flipped {
+    background-image: url('./images/card5.png');
+}
+
+.card[data-card="card6"].flipped {
+    background-image: url('./images/card6.png');
+}
+
+.card[data-card="card7"].flipped {
+    background-image: url('./images/card7.png');
+}
+
+.card[data-card="card8"].flipped {
+    background-image: url('./images/card8.png');
+}
+
+.card.wrong {
+    background-image: url('./images/cross.png'); /* Add cross image for wrong guesses */
+    background-size: 50%; /* Adjust size of the cross image */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.card.wrong::after {
+    content: '✖'; /* Unicode character for cross */
+    color: red;
+    font-size: 48px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Remove specific translate transforms and use Flexbox alignment */
+.card.ani0,
+.card.ani1,
+.card.ani2,
+.card.ani3,
+.card.ani4,
+.card.ani5,
+.card.ani6,
+.card.ani7,
+.card.ani8 {
+    opacity: 1; /* Make visible */
+    transform: scale(1); /* Scale up to original size */
+}
+
+/* Optional: Add slight rotation for visual effect */
+/*.card.ani0 {
+    /* No translation */
+/*}
+.card.ani1 {
+    transform: scale(1) rotate(-5deg);
+}
+.card.ani2 {
+    transform: scale(1) rotate(5deg);
+}
+.card.ani3 {
+    transform: scale(1) rotate(-5deg);
+}
+.card.ani4 {
+    transform: scale(1) rotate(5deg);
+}
+.card.ani5 {
+    transform: scale(1) rotate(-5deg);
+}
+.card.ani6 {
+    transform: scale(1) rotate(5deg);
+}
+.card.ani7 {
+    transform: scale(1) rotate(-5deg);
+}
+.card.ani8 {
+    transform: scale(1) rotate(5deg);
+}*/
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.8); /* Dark background with opacity */
+    display: flex; /* Use Flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.modal-content {
+    background-color: #333; /* Dark background */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%; /* Could be more or less, depending on screen size */
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    font-size: 16px; /* Increase font size for better readability */
+    line-height: 1.5; /* Increase line height for better readability */
+    color: #ffd700; /* Yellow text color */
+}
+
+.close-button, .close-details-button {
+    color: #ffd700; /* Yellow color for close button */
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus,
+.close-details-button:hover,
+.close-details-button:focus {
+    color: #fff; /* White color on hover */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-reset-button, .modal-action-button {
+    background: var(--button-gradient);
+    border: none;
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: var(--button-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 20px;
+}
+
+.modal-reset-button:hover, .modal-action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+    background-color: #333; /* Dark background */
+    color: #ffd700; /* Yellow text color */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    max-width: 500px;
+    margin: auto;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.emoji-details-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+    text-align: left;
+}
+
+.emoji-details-list li {
+    margin-bottom: 10px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .nav-menu {
+        flex-direction: column;
+        display: none;
+        width: 100%;
+        background-color: #333;
+        position: absolute;
+        top: 60px;
+        left: 0;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-item {
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    .nav-toggle {
+        display: flex; /* Show on smaller screens */
+    }
+
+    .grid {
+        width: 100%;
+        padding: 0 15px;
+    }
+
+    .game {
+        height: auto; /* Ensure height adjusts based on content */
+        margin-top: 10px;
+        border: 1px solid #ffd700;
+        padding: 10px; /* Reduced padding for smaller screens */
+    }
+
+    .card {
+        width: 100px; /* Smaller width for mobile */
+        height: 140px; /* Smaller height for mobile */
+        margin: 5px; /* Smaller margin for mobile */
+    }
+
+    .modal-content {
+        width: 95%; /* Adjust width for smaller screens */
+        font-size: 14px; /* Adjust font size for smaller screens */
+        margin: 0 auto; /* Center horizontally */
+    }
+}
