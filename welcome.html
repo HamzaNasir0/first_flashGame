@@ -10,36 +10,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <!-- CSS -->
     <link rel="stylesheet" href="./css/welcome.css">
+    <meta name="theme-color" content="#121212">
 </head>
 
 <body>
     <!-- Background Music -->
     <audio id="background-music" src="./sounds/background_music.mp3" autoplay loop style="display: none;"></audio>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <span class="nav-logo">Game Suite</span>
-            <div class="nav-toggle" id="mobile-menu">
-                <span class="burger"></span>
-                <span class="burger"></span>
-                <span class="burger"></span>
+    <!-- Use <header> for Navigation Bar -->
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <span class="nav-logo">Game Suite</span>
+                <div class="nav-toggle" id="mobile-menu">
+                    <span class="burger"></span>
+                    <span class="burger"></span>
+                    <span class="burger"></span>
+                </div>
+                <ul class="nav-menu" id="nav-menu">
+                    <li class="nav-item">
+                        <button id="sound-toggle" class="nav-link">
+                            <i class="fas fa-volume-mute" id="sound-icon"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="logout-button" class="nav-link">Logout</button>
+                    </li>
+                </ul>
             </div>
-            <ul class="nav-menu" id="nav-menu">
-                <li class="nav-item">
-                    <button id="sound-toggle" class="nav-link">
-                        <i class="fas fa-volume-mute" id="sound-icon"></i>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button id="logout-button" class="nav-link">Logout</button>
-                </li>
-            </ul>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <!-- Welcome Section -->
-    <div class="welcome-container">
+    <!-- Use <main> for the main content -->
+    <main class="welcome-container">
         <h1>Welcome, <span id="username">Player</span>!</h1>
         <div class="user-stats">
             <p>Total Bets: <span id="total-bets"></span></p>
@@ -113,16 +116,15 @@
                 <button id="cancel-logout-button" class="modal-button modal-button-secondary">Cancel</button>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Footer -->
+    <!-- Use <footer> for the footer -->
     <footer class="footer">
         <p>Created by <span class="creator">Hammy</span></p>
     </footer>
 
     <!-- JavaScript -->
     <script src="./js/welcome.js"></script>
-    <script src="./js/scratch_game.js"></script> <!-- Include your Scratch & Win JavaScript -->
 </body>
 
 </html>
