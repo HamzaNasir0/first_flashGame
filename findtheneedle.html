@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Shuffle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/findtheneedle.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="welcome.html" class="nav-logo">Game Suite</a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="burger"></span>
+                <span class="burger"></span>
+                <span class="burger"></span>
+            </button>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="blackjack.html" class="nav-link">Blackjack</a></li>
+                <li class="nav-item"><a href="rocket-crash.html" class="nav-link">Rocket Crash</a></li>
+                <li class="nav-item"><a href="Scratch_Win.html" class="nav-link">Scratch</a></li>
+                <li class="nav-item"><a href="welcome.html" class="nav-link">User</a></li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <main>
+        <div class="grid">
+            <div class="guesses-left">Guesses left: <span id="guesses-count">8</span></div> <!-- Update initial guesses to 8 -->
+            <div id="balance-display">Balance: £0.00</div> <!-- Add balance display element -->
+            <ul class="list">
+                <li class="card" data-card="joker"></li>
+                <li class="card" data-card="card1"></li>
+                <li class="card" data-card="card2"></li>
+                <li class="card" data-card="card3"></li>
+                <li class="card" data-card="card4"></li>
+                <li class="card" data-card="card5"></li>
+                <li class="card" data-card="card6"></li>
+                <li class="card" data-card="card7"></li>
+                <li class="card" data-card="card8"></li>
+            </ul>
+            <div class="game"></div>
+            <div class="button-container">
+                <button class="play">Play</button>
+                <button class="details">Details</button> <!-- Add Details button -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Modal for Notifications -->
+    <div id="game-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <p id="modal-message"></p>
+            <button class="modal-action-button">Reset</button> <!-- General action button -->
+        </div>
+    </div>
+
+    <!-- Add Modal for Game Details -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-details-button" id="close-details-modal">&times;</span>
+            <h2>Game Instructions</h2>
+            <p>This is a card guessing game. You start with 8 guesses. Each game costs £100. If you find the Joker, you win and your reward is multiplied based on the stage you are in:</p>
+            <ul>
+                <li>Stage 1: 0.5x money back</li>
+                <li>Stage 2: 1x money back</li>
+                <li>Stage 3: 2x money back</li>
+                <li>Stage 4: 3x money back</li>
+                <li>And so on...</li>
+            </ul>
+            <p>If you run out of guesses, the game resets.</p>
+        </div>
+    </div>
+
+    <script src="./js/findtheneedle.js"></script>
+</body>
+</html>
