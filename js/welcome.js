@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blackjackGameButton = document.getElementById('blackjack-game');
     const rocketCrashGameButton = document.getElementById('rocket-crash-game');
     const scratchGameButton = document.getElementById('scratch-game'); // Added Scratch Game Button
+    const jokerGameButton = document.getElementById('joker-game');
 
     // Carousel Pagination Elements
     const carousel = document.querySelector('.carousel');
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUserProfile = userProfiles[userIndex];
 
     // Initialize Missing Properties
-    currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+    currentUserProfile.totalProfit = Math.max(0, parseFloat(currentUserProfile.totalProfit) || 0);
     currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
     currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
     currentUserProfile.totalBets = parseFloat(currentUserProfile.totalBets) || 0;
@@ -208,8 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const rewardAmount = parseInt(rewardText.replace('£', '')) || 0;
 
         if (rewardAmount > 0) {
-            currentUserProfile.totalBalance += rewardAmount;
-            currentUserProfile.totalProfit += rewardAmount;
+            currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) + rewardAmount;
+            currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) + rewardAmount;
             winSound.play();
             rewardMessage.textContent = `Congratulations! You have won £${rewardAmount}!`;
         } else {
@@ -217,6 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // currentUserProfile.totalLosses += 0; // No loss as user didn't lose anything
             loseSound.play();
             rewardMessage.textContent = "Better luck next time!";
+            // Ensure totalProfit does not become negative if losses are recorded
+            // currentUserProfile.totalProfit = Math.max(0, parseFloat(currentUserProfile.totalProfit) - lossAmount);
         }
 
         saveUserProfile();
@@ -283,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('currentUserIndex');
         localStorage.removeItem('spinData');
         // Redirect to login page
-        window.location.href = 'user-auth.html';
+        window.location.href = 'index.html';
     });
 
     // Handle Game Buttons
@@ -295,87 +298,51 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'rocket-crash.html';
     });
 
+    jokerGameButton.addEventListener('click', () => {
+        window.location.href = 'findtheneedle.html';
+    });
+
     // Handle Scratch Game Button
     scratchGameButton.addEventListener('click', () => {
         window.location.href = 'Scratch_Win.html';
     });
 
-    // Add Pagination Dots
-    gameCards.forEach((card, index) => {
-        const dot = document.createElement('span');
-        dot.classList.add('dot');
-        if (index === 0) dot.classList.add('active'); // Set first dot as active
-        pagination.appendChild(dot);
-    });
+    // Remove the old carousel pagination code and replace with Bootstrap carousel handling
+    const gameCarousel = document.getElementById('gameCarousel');
+    const carouselItems = document.querySelectorAll('.carousel-item');
 
-    const dots = document.querySelectorAll('.carousel-pagination .dot');
-
-    // Function to Update Active Dot Based on Scroll Position
-    function updateActiveDot() {
-        const carouselScrollLeft = carousel.scrollLeft;
-        const carouselWidth = carousel.clientWidth;
-        const cardWidth = gameCards[0].clientWidth + parseInt(getComputedStyle(gameCards[0]).marginRight);
-        const index = Math.round(carouselScrollLeft / (cardWidth));
-
-        dots.forEach(dot => dot.classList.remove('active'));
-        if (dots[index]) dots[index].classList.add('active');
-    }
-
-    // Event Listener for Carousel Scroll
-    carousel.addEventListener('scroll', debounce(updateActiveDot, 100));
-
-    // Debounce Function to Optimize Scroll Event Handling
-    function debounce(func, delay) {
-        let timeout;
-        return function () {
-            const context = this;
-            const args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(context, args), delay);
-        };
-    }
-
-    // Click Event for Dots to Navigate to Specific Slide
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            carousel.scrollTo({
-                left: index * (gameCards[0].clientWidth + 20), // 20px is the gap
-                behavior: 'smooth'
-            });
-        });
-    });
-
-    // Highlight Active Game Card Based on Scroll
     function highlightActiveCard() {
-        const activeIndex = Math.round(carousel.scrollLeft / (gameCards[0].clientWidth + 20));
-
-        gameCards.forEach((card, index) => {
-            if (index === activeIndex) {
-                card.classList.add('active');
+        carouselItems.forEach(item => {
+            if (item.classList.contains('active')) {
+                item.querySelector('.card')?.classList.add('active');
             } else {
-                card.classList.remove('active');
+                item.querySelector('.card')?.classList.remove('active');
             }
         });
-
-        // Update Pagination Dots
-        dots.forEach(dot => dot.classList.remove('active'));
-        if (dots[activeIndex]) dots[activeIndex].classList.add('active');
     }
 
-    // Event Listener for Carousel Scroll to Highlight Active Card
-    carousel.addEventListener('scroll', debounce(highlightActiveCard, 100));
+    // Initialize Bootstrap carousel
+    const bsCarousel = new bootstrap.Carousel(gameCarousel, {
+        interval: false,
+        wrap: true
+    });
 
-    // Keyboard Navigation (Optional)
+    // Listen for Bootstrap carousel events
+    gameCarousel.addEventListener('slid.bs.carousel', highlightActiveCard);
+
+    // Initial highlight
+    highlightActiveCard();
+
+    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight') {
-            carousel.scrollBy({ left: carousel.clientWidth + 20, behavior: 'smooth' });
+            bsCarousel.next();
         } else if (e.key === 'ArrowLeft') {
-            carousel.scrollBy({ left: -(carousel.clientWidth + 20), behavior: 'smooth' });
+            bsCarousel.prev();
         }
     });
 
-    // Initial Highlight
-    highlightActiveCard();
+    // Remove the old carousel scroll event listeners and dots pagination code
 
     // Listen for changes in localStorage to update stats in real-time
     window.addEventListener('storage', (event) => {
@@ -393,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUserProfile = userProfiles[userIndex];
 
             // Initialize Missing Properties
-            currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+            currentUserProfile.totalProfit = Math.max(0, parseFloat(currentUserProfile.totalProfit) || 0);
             currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
             currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
             currentUserProfile.totalBets = parseFloat(currentUserProfile.totalBets) || 0;

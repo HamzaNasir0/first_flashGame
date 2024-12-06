@@ -1,15 +1,11 @@
-// Wait for the DOM to fully load
-document.addEventListener('DOMContentLoaded', () => {
-    initializeGame();
-    setupEventListeners();
-});
-
 // Game State Variables
 let deck = [];
 let dealerHand = [];
 let playerHand = [];
 let dealerHiddenCard = null;
+let gameInProgress = false;
 
+// Player Statistics
 let totalBalance = 0;
 let totalProfit = 0;
 let currentBet = 0;
@@ -17,11 +13,7 @@ let totalWins = 0;
 let totalLosses = 0;
 let totalBets = 0;
 
-let gameInProgress = false;
-
-// HTML Elements
-const mobileMenu = document.getElementById('nav-toggle'); 
-const navMenu = document.getElementById('nav-menu');
+// DOM Elements
 const dealerCards = document.getElementById("dealer-cards");
 const dealerTotalValue = document.getElementById("dealer-total-value");
 const playerCards = document.getElementById("player-cards");
@@ -35,41 +27,66 @@ const profitDisplay = document.getElementById("total-profit");
 const balanceDisplay = document.getElementById("total-balance");
 const bettingArea = document.getElementById("chips");
 const chipsSection = document.getElementById("chips-area");
-
-// Modal Elements
 const modal = document.getElementById("modal");
 const closeModalButton = document.getElementById("close-modal");
 const modalMessage = document.getElementById("modal-message");
+const gameContainer = document.querySelector('.blackjack-game');
+const clearBetButton = document.getElementById("clear-bet-button");
+const totalProfitDisplay = document.getElementById("total-profit");
+const totalLostDisplay = document.getElementById("total-losses");
+const totalBetDisplay = document.getElementById("total-bets");
+const highestCrashDisplay = document.getElementById("highest-crash");
 
-// Audio Elements
-// const winSound = new Audio('sounds/win-sound.mp3');
-// const loseSound = new Audio('sounds/lose-sound.mp3');
-
-// Initialize the game
-function initializeGame() {
-    // Initialize user profile
-    loadUserProfile();
-
-    // Initialize UI
-    updateStatisticsDisplay();
-    clearCardDisplay();
-    resetGameState();
-
-    // Initialize Mobile Menu Toggle
-    mobileMenu.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        mobileMenu.classList.toggle('open'); // Animates the hamburger icon
+// Utility Functions
+function toggleButtonVisibility(buttonIds, action) {
+    buttonIds.forEach(id => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.classList[action]('d-none');
+            button.setAttribute('aria-pressed', action === 'remove' ? 'true' : 'false');
+        }
     });
 }
 
-// Setup Event Listeners
+// Initialize Game
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Blackjack page loaded successfully');
+    initializeGame();
+    setupEventListeners();
+    
+    // Declare and initialize currentUserProfile before any usage
+    let currentUserProfile = getCurrentUserProfile();
+});
+
+function initializeGame() {
+    deck = createDeck();
+    loadUserProfile();
+    updateStatisticsDisplay();
+    clearCardDisplay();
+    resetGameState();
+    
+    // Hide all game control buttons initially except clear bet
+    playButton.classList.add('d-none');
+    hitButton.classList.add('d-none');
+    standButton.classList.add('d-none');
+    restartButton.classList.add('d-none'); // Ensure restart button is hidden at start
+    
+    bettingArea.classList.remove('d-none');
+    chipsSection.classList.remove('d-none');
+    
+    resultDisplay.textContent = '';
+
+    gameInProgress = false;
+    modal.style.display = "none";
+    clearBetButton.classList.remove('d-none');
+    updateUI();
+}
+
 function setupEventListeners() {
-    // Betting Chips
     document.querySelectorAll('.chip').forEach(chip => {
         chip.addEventListener('click', handleChipClick);
     });
 
-    // Play Button
     playButton.addEventListener("click", () => {
         if (currentBet === 0) {
             openModal("Please place a bet before playing!");
@@ -78,7 +95,6 @@ function setupEventListeners() {
         dealInitialCards();
     });
 
-    // Hit Button
     hitButton.addEventListener("click", () => {
         if (gameInProgress) {
             playerHand.push(drawCard());
@@ -89,7 +105,6 @@ function setupEventListeners() {
         }
     });
 
-    // Stand Button
     standButton.addEventListener("click", () => {
         if (gameInProgress) {
             dealerTurn();
@@ -98,10 +113,8 @@ function setupEventListeners() {
         }
     });
 
-    // Restart Button
     restartButton.addEventListener("click", restartGame);
 
-    // Modal Close
     closeModalButton.addEventListener("click", () => {
         modal.style.display = "none";
     });
@@ -111,105 +124,25 @@ function setupEventListeners() {
             modal.style.display = "none";
         }
     });
+
+    clearBetButton.addEventListener("click", () => {
+        if (gameInProgress) {
+            openModal("Cannot clear bet during a game");
+            return;
+        }
+        if (currentBet > 0) {
+            updateBalanceDisplay(currentBet, true); // Return bet to balance
+            currentBet = 0;
+            bettingArea.innerHTML = "Betting Area: Place Your Bets!";
+            playButton.classList.add('d-none');
+            updateUI();
+        }
+    });
 }
 
-// Handle Chip Click
-function handleChipClick() {
-    if (gameInProgress) {
-        openModal("Cannot place bets while game is in progress.");
-        return;
-    }
-
-    const betValue = this.getAttribute('data-value') === 'all' ? totalBalance : parseInt(this.getAttribute('data-value'));
-
-    if (isNaN(betValue) || betValue <= 0) {
-        openModal("Invalid bet amount.");
-        return;
-    }
-
-    if (betValue > totalBalance) {
-        openModal("You don't have enough balance to place this bet.");
-        return;
-    }
-
-    currentBet += betValue;
-    totalBalance -= betValue;
-    totalBets += betValue;
-
-    updateStatisticsDisplay();
-    updateUserProfile(); // Save balance changes immediately
-
-    bettingArea.innerHTML = `Betting Area: £${currentBet.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    playButton.style.display = "block"; // Show play button once bet is placed
-    restartButton.style.display = "block"; // Ensure restart button is displayed
-}
-
-// Load User Profile from localStorage
-function loadUserProfile() {
-    let userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    let userIndex = parseInt(localStorage.getItem("currentUserIndex"));
-
-    // If no user is set, initialize the first user
-    if (isNaN(userIndex) || userIndex < 0 || userIndex >= userProfiles.length) {
-        // Create a default user profile
-        const defaultUser = {
-            totalProfit: "0.00",
-            totalBalance: "500.00",
-            totalWins: "0",
-            totalLosses: "0.00",
-            totalBets: "0.00"
-        };
-        userProfiles.push(defaultUser);
-        userIndex = 0;
-        localStorage.setItem("currentUserIndex", userIndex);
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-    }
-
-    const currentUserProfile = userProfiles[userIndex];
-    totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
-    
-    // Remove the logical OR to allow totalBalance to be zero
-    totalBalance = parseFloat(currentUserProfile.totalBalance);
-    if (isNaN(totalBalance)) {
-        totalBalance = 500; // Default to 500 if not set
-    }
-    
-    totalWins = parseInt(currentUserProfile.totalWins) || 0;
-    totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
-    totalBets = parseFloat(currentUserProfile.totalBets) || 0;
-}
-
-// Update User Profile in localStorage
-function updateUserProfile() {
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
-
-    if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
-        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2);
-        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
-        userProfiles[userIndex].totalWins = totalWins;
-        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2);
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
-
-        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-        updateStatisticsDisplay(); // Ensure the display is updated
-    } else {
-        console.error("Invalid user index. Cannot update user profile.");
-    }
-}
-
-// Update Statistics Display
-function updateStatisticsDisplay() {
-    profitDisplay.textContent = `Total Profit: £${totalProfit.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    balanceDisplay.textContent = `£${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    document.getElementById("total-wins").textContent = `Games won: ${totalWins}`;
-    document.getElementById("total-losses").textContent = `Total Losses: £${totalLosses.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-    document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
-}
-
-// Create a Deck of Cards
+// Card Management Functions
 function createDeck() {
-    const suits = ["c", "d", "h", "s"]; // Clubs, Diamonds, Hearts, Spades
+    const suits = ["c", "d", "h", "s"];
     const values = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
     let newDeck = [];
 
@@ -222,7 +155,6 @@ function createDeck() {
     return shuffleDeck(newDeck);
 }
 
-// Shuffle the Deck
 function shuffleDeck(deck) {
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -231,105 +163,29 @@ function shuffleDeck(deck) {
     return deck;
 }
 
-// Draw a Card from the Deck
 function drawCard() {
     if (deck.length === 0) {
-        deck = createDeck(); // Recreate deck if empty
+        deck = createDeck();
     }
     return deck.pop();
 }
 
-// Deal Initial Cards
-function dealInitialCards() {
-    if (currentBet === 0) {
-        openModal("Please place a bet before playing!");
-        return;
-    }
-
-    // Hide the betting area when the game starts
-    bettingArea.style.display = "none";
-
-    // Reset Hands
-    dealerHand = [];
-    playerHand = [];
-    dealerHiddenCard = null;
-
-    // Deal Cards
-    playerHand.push(drawCard());
-    playerHand.push(drawCard());
-    dealerHand.push(drawCard());
-    dealerHiddenCard = drawCard();
-    dealerHand.push(dealerHiddenCard);
-
-    // Display Hands
-    displayHands();
-
-    // Update UI
-    gameInProgress = true;
-    playButton.style.display = "none";
-    chipsSection.style.display = "none";
-    restartButton.style.display = "none";
-    hitButton.style.display = "block";
-    standButton.style.display = "block";
-}
-
-// Display Hands
-function displayHands(showDealerFull = false) {
-    // Display Dealer's Cards
-    if (showDealerFull) {
-        dealerCards.innerHTML = dealerHand.map(card => `<span class="card">${getCardName(card)}</span>`).join(" ");
-        dealerTotalValue.textContent = `Dealer's Total: ${calculateHandValue(dealerHand)}`;
-    } else {
-        if (dealerHand.length > 0) {
-            dealerCards.innerHTML = `<span class="card">${getCardName(dealerHand[0])}</span>`;
-            dealerCards.innerHTML += `<span class="card"><img src="./img/hidden.png" alt="Hidden card" class="card-img"></span>`;
-            dealerTotalValue.textContent = `Dealer's Total: ?`;
-        }
-    }
-
-    // Display Player's Cards
-    playerCards.innerHTML = playerHand.map(card => `<span class="card">${getCardName(card)}</span>`).join(" ");
-    playerTotalValue.textContent = `Your Total: ${calculateHandValue(playerHand)}`;
-}
-
-// Get Card Name for Accessibility
-function getCardName(card) {
-    const valueMap = {
-        "01": "01",
-        "11": "11",
-        "12": "12",
-        "13": "13"
-    };
-    const value = valueMap[card.value] || card.value;
-    const suitMap = {
-        "c": "c",
-        "d": "d",
-        "h": "h",
-        "s": "s"
-    };
-    const suit = suitMap[card.suit];
-    const imagePath = `img/${suit}${value}.png`;
-    return `<span class="card"><img src="${imagePath}" alt="${value} of ${suit}" class="card-img"></span>`;
-}
-
-// Calculate Hand Value
+// Game Logic Functions
 function calculateHandValue(hand) {
     let value = 0;
     let aceCount = 0;
 
-    for (let card of hand) {
-        let cardValue = parseInt(card.value, 10);
-        if (cardValue >= 11 && cardValue <= 13) {
-            value += 10; // Face cards
-        } else if (cardValue === 1) {
+    for (const card of hand) {
+        if (card.value === '01') {
             aceCount += 1;
-            value += 11; // Ace initially counted as 11
+            value += 11;
+        } else if (['11', '12', '13'].includes(card.value)) {
+            value += 10;
         } else {
-            value += cardValue; // Number cards
+            value += parseInt(card.value);
         }
     }
 
-    // Adjust for Aces if value > 21
     while (value > 21 && aceCount > 0) {
         value -= 10;
         aceCount -= 1;
@@ -338,155 +194,218 @@ function calculateHandValue(hand) {
     return value;
 }
 
-// Check if Player Busts
 function checkPlayerBust() {
     const playerTotal = calculateHandValue(playerHand);
-    playerTotalValue.textContent = `Your Total: ${playerTotal}`;
+    playerTotalValue.textContent = `Player hand total: ${playerTotal}`;
 
     if (playerTotal > 21) {
         announceWinner("dealer");
+    } else if (playerTotal === 21) {
+        standButton.click(); // Automatically stand if player hits 21
     }
 }
 
-// Dealer's Turn
 function dealerTurn() {
-    displayHands(true); // Show all dealer cards
+    displayHands(true);
     let dealerTotal = calculateHandValue(dealerHand);
 
-    // Dealer hits until total is at least 17
     while (dealerTotal < 17) {
         dealerHand.push(drawCard());
         dealerTotal = calculateHandValue(dealerHand);
         displayHands(true);
     }
 
-    // Determine Winner
     determineWinner();
 }
 
-// Determine Winner
 function determineWinner() {
     const playerTotal = calculateHandValue(playerHand);
     const dealerTotal = calculateHandValue(dealerHand);
 
+    let winner;
     if (dealerTotal > 21) {
-        // Dealer busts, player wins
-        announceWinner("player");
+        winner = "player";
     } else if (playerTotal > dealerTotal) {
-        // Player has higher total
-        announceWinner("player");
-    } else if (dealerTotal > playerTotal) {
-        // Dealer has higher total
-        announceWinner("dealer");
+        winner = "player";
+    } else if (playerTotal < dealerTotal) {
+        winner = "dealer";
     } else {
-        // Tie
-        announceWinner("tie");
+        winner = "push";
     }
+
+    announceWinner(winner);
 }
 
-// Announce Winner
-function announceWinner(winner) {
-    gameInProgress = false;
-
-    if (winner === "player") {
-        resultDisplay.classList.remove("dealer-wins");
-        resultDisplay.classList.add("result-display");
-        resultDisplay.textContent = "You win!";
-        // winSound.play();
-
-        totalWins += 1; // Increment total wins count
-        totalProfit += currentBet;
-        totalBalance += currentBet * 2; // Player gets their bet back plus winnings
-    } else if (winner === "dealer") {
-        resultDisplay.classList.remove("result-display");
-        resultDisplay.classList.add("dealer-wins");
-        resultDisplay.textContent = "Dealer wins!";
-        // loseSound.play();
-
-        totalLosses += currentBet;
-        // Player already lost the bet when placing it
-    } else if (winner === "tie") {
-        resultDisplay.classList.remove("dealer-wins");
-        resultDisplay.classList.add("result-display");
-        resultDisplay.textContent = "It's a tie!";
-        totalBalance += currentBet; // Refund the bet
-    }
-
-    // Update Statistics
-    updateStatisticsDisplay();
-    updateUserProfile();
-
-    // Reset Current Bet
-    currentBet = 0;
-    bettingArea.innerHTML = `Betting Area: Place Your Bets!`;
-
-    // Hide the betting area and chips after the game ends
-    bettingArea.style.display = "none";
-    chipsSection.style.display = "none";
-
-    // Update UI
-    hitButton.style.display = "none";
-    standButton.style.display = "none";
-    restartButton.style.display = "block";
-    playButton.style.display = "none"; // Hide play button until a new bet is placed
-
-    // Check if player is out of balance
-    if (totalBalance <= 0) {
-        openModal("You have run out of balance! Please restart the game.");
-        // Add class to modal for specific styling
-        modal.classList.add("out-of-balance");
-    }
-}
-
-// Restart Game
-function restartGame() {
+// UI Update Functions
+function updateUI() {
     if (gameInProgress) {
-        openModal("Game is in progress. Please finish the current game first.");
+        clearBetButton.classList.add('d-none');
+        toggleButtonVisibility(['play-button', 'restart-button'], 'add');
+        toggleButtonVisibility(['hit-button', 'stand-button'], 'remove');
+        toggleButtonVisibility(['toggle-stats-button'], 'add');
+    } else {
+        clearBetButton.classList[currentBet > 0 ? 'remove' : 'add']('d-none');
+        toggleButtonVisibility(['play-button'], currentBet > 0 ? 'remove' : 'add');
+        toggleButtonVisibility(['hit-button', 'stand-button'], 'add');
+        // Only show restart button after a game has been completed
+        restartButton.classList.add('d-none');
+        toggleButtonVisibility(['toggle-stats-button'], 'remove');
+    }
+
+    document.querySelectorAll('.chip').forEach(chip => {
+        const value = chip.getAttribute('data-value') === 'all' ? totalBalance : parseInt(chip.getAttribute('data-value'));
+        if (value > totalBalance) {
+            chip.classList.add('disabled');
+            chip.setAttribute('disabled', 'true');
+            chip.setAttribute('aria-disabled', 'true');
+        } else {
+            chip.classList.remove('disabled');
+            chip.removeAttribute('disabled');
+            chip.setAttribute('aria-disabled', 'false');
+        }
+    });
+}
+
+function displayHands(showDealerFull = false) {
+    if (showDealerFull) {
+        dealerCards.innerHTML = dealerHand.map(card => `<span class="card">${getCardName(card)}</span>`).join(" ");
+        dealerTotalValue.textContent = `Dealer hand total: ${calculateHandValue(dealerHand)}`;
+    } else {
+        if (dealerHand.length > 0) {
+            dealerCards.innerHTML = `<span class="card">${getCardName(dealerHand[0])}</span>`;
+            dealerCards.innerHTML += `<span class="card"><img src="./img/hidden.png" alt="Hidden card" class="card-img"></span>`;
+            dealerTotalValue.textContent = `Dealer hand total: ${calculateHandValue([dealerHand[0]])}`;
+        }
+    }
+
+    playerCards.innerHTML = playerHand.map(card => `<span class="card">${getCardName(card)}</span>`).join(" ");
+    playerTotalValue.textContent = `Player hand total: ${calculateHandValue(playerHand)}`;
+
+    chipsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updateBalanceDisplay(amount, isAddition) {
+    const balanceElement = document.getElementById("total-balance");
+    // balanceElement.classList.remove('balance-update');
+    // void balanceElement.offsetWidth; // Trigger reflow to restart animation
+
+    if (isAddition) {
+        totalBalance += amount;
+    } else {
+        totalBalance -= amount;
+    }
+
+    // balanceElement.classList.add('balance-update');
+    balanceElement.textContent = `£${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+}
+
+function updateStatisticsDisplay() {
+    profitDisplay.textContent = `Total Profit: £${totalProfit.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+    balanceDisplay.textContent = `£${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+    document.getElementById("total-wins").textContent = `Games won: ${totalWins}`;
+    document.getElementById("total-losses").textContent = `Total Losses: £${totalLosses.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+    document.getElementById("total-bets").textContent = `Total Bets Placed: £${totalBets.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`;
+}
+
+// Event Handler Functions
+function handleChipClick() {
+    if (gameInProgress) {
+        openModal("Cannot place bets during a game");
         return;
     }
 
-    // Refund the current bet if any
-    if (currentBet > 0) {
-        totalBalance += currentBet;
-        currentBet = 0;
-        bettingArea.innerHTML = `Betting Area: Place Your Bets!`;
-        updateStatisticsDisplay();
-        updateUserProfile();
+    let betValue;
+    if (this.getAttribute('data-value') === 'all') {
+        betValue = totalBalance;
+    } else {
+        betValue = parseInt(this.getAttribute('data-value')) || 0;
     }
 
-    // Reset Game State
-    resetGameState();
-    clearCardDisplay();
+    if (!canPlaceBet(betValue)) return;
+
+    // Ensure placeBet is called only once
+    if (currentBet + betValue <= totalBalance) {
+        placeBet(betValue);
+        updateUI();
+    }
+}
+
+// When a bet is placed
+function placeBet(value) {
+    currentBet += value;
+    updateBalance(userIndex, -value); // Deduct bet from balance
+    currentUserProfile.totalBets += value;
+    saveUserProfile();
+    
+    console.log(`Before Bet - Balance: £${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`);
+    console.log(`Bet Placed: £${value.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`);
+    
+    updateBalanceDisplay(value, false);
+    totalBets += value;
+    
     updateStatisticsDisplay();
-    playButton.style.display = "none";
-    restartButton.style.display = "none";
-    chipsSection.style.display = "block";
-    bettingArea.style.display = "block"; // Show the betting area when restarting
+    updateUserProfile();
+    
+    bettingArea.innerHTML = `Current Bet: £${currentBet.toLocaleString('en-GB', { 
+        minimumFractionDigits: 2 
+    })}`;
+    
+    playButton.classList.remove('d-none');
+    restartButton.classList.add('d-none'); // Ensure restart stays hidden after placing bet
+    document.querySelector('.navbar').classList.add('navbar-hidden'); // Hide navbar when betting
 }
 
-// Reset Game State
-function resetGameState() {
-    dealerHand = [];
-    playerHand = [];
-    dealerHiddenCard = null;
-    deck = createDeck();
-    resultDisplay.textContent = "";
-    gameInProgress = false;
-    hitButton.style.display = "none";
-    standButton.style.display = "none";
-    playButton.style.display = "none";
-    restartButton.style.display = "block";
+// User Profile Management
+function loadUserProfile() {
+    let userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    let userIndex = parseInt(localStorage.getItem("currentUserIndex"));
+
+    if (isNaN(userIndex) || userIndex < 0 || userIndex >= userProfiles.length) {
+        userIndex = 0;
+        localStorage.setItem("currentUserIndex", userIndex);
+    }
+
+    // Initialize default profile if no profiles exist
+    if (userProfiles.length === 0) {
+        const defaultProfile = {
+            totalProfit: "0.00",
+            totalBalance: "1000.00", // Starting balance
+            totalWins: 0,
+            totalLosses: "0.00",
+            totalBets: "0.00"
+        };
+        userProfiles.push(defaultProfile);
+        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+    }
+
+    const currentUserProfile = userProfiles[userIndex];
+    totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+
+    totalBalance = parseFloat(currentUserProfile.totalBalance);
+    if (isNaN(totalBalance)) {
+        totalBalance = 0;
+    }
 }
 
-// Clear Card Displays
-function clearCardDisplay() {
-    dealerCards.innerHTML = "";
-    dealerTotalValue.textContent = "Dealer's Total: ?";
-    playerCards.innerHTML = "";
-    playerTotalValue.textContent = "Your Total: ?";
+function updateUserProfile() {
+    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
+
+    if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
+        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2);
+        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
+        userProfiles[userIndex].totalWins = totalWins;
+        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2);
+        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
+
+        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+        updateStatisticsDisplay();
+    } else {
+        console.error("Invalid user index. Cannot update user profile.");
+    }
 }
 
-// Open Modal with Message
+// Modal Management
 function openModal(message) {
     modalMessage.textContent = message;
     modal.style.display = "flex";
@@ -498,12 +417,268 @@ function openModal(message) {
     }
 }
 
-// Reset Local Storage (For Debugging Purposes)
-// Uncomment the following lines to reset localStorage
-/*
-function resetLocalStorage() {
-    localStorage.removeItem("userProfiles");
-    localStorage.removeItem("currentUserIndex");
+// Scroll Management
+let lastScrollTop = 0;
+const navbar = document.querySelector('.navbar');
+window.addEventListener('scroll', () => {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop > lastScrollTop) {
+        navbar.style.top = '-76px';
+    } else {
+        navbar.style.top = '0';
+    }
+    lastScrollTop = scrollTop;
+});
+
+function dealInitialCards() {
+    if (currentBet === 0) {
+        openModal("Please place a bet before playing!");
+        return;
+    }
+
+    dealerHand = [];
+    playerHand = [];
+    dealerHiddenCard = null;
+
+    bettingArea.classList.add('d-none');
+    chipsSection.classList.add('d-none');
+    document.querySelector('.chips-wrapper').classList.add('d-none');
+
+    gameContainer.classList.add('game-started');
+
+    playerHand.push(drawCard());
+    playerHand.push(drawCard());
+    dealerHand.push(drawCard());
+    dealerHiddenCard = drawCard();
+    dealerHand.push(dealerHiddenCard);
+
+    displayHands();
+
+    if (calculateHandValue(playerHand) === 21) {
+        resultDisplay.textContent = "Blackjack! You Win!";
+        totalWins += 1;
+        totalProfit += currentBet * 1.5; // Blackjack pays 1.5 times the bet
+        updateBalanceDisplay(currentBet * 2.5, true); // Add winnings to balance
+        updateStatisticsDisplay();
+        updateUserProfile();
+        gameInProgress = false;
+        currentBet = 0;
+
+        // Hide all other buttons
+        playButton.classList.add('d-none');
+        hitButton.classList.add('d-none');
+        standButton.classList.add('d-none');
+        clearBetButton.classList.add('d-none');
+        document.getElementById('toggle-stats-button').classList.add('d-none');
+
+        // Show restart button
+        restartButton.classList.remove('d-none');
+        return;
+    }
+
+    hitButton.classList.remove('d-none');
+    standButton.classList.remove('d-none');
+
+    playButton.classList.add('d-none');
+    restartButton.classList.add('d-none');
+
+    document.getElementById('toggle-stats-button').classList.add('d-none');
+
+    gameInProgress = true;
+    clearBetButton.classList.add('d-none'); // Hide when game starts
+    document.querySelector('.navbar').classList.add('navbar-hidden'); // Hide navbar during game
 }
-resetLocalStorage();
-*/
+
+function getCardName(card) {
+    const suitMap = {
+        "c": "Clubs",
+        "d": "Diamonds",
+        "h": "Hearts",
+        "s": "Spades"
+    };
+    const valueMap = {
+        "01": "Ace",
+        "11": "Jack",
+        "12": "Queen",
+        "13": "King"
+    };
+    const value = valueMap[card.value] || card.value;
+    const suit = suitMap[card.suit];
+    const imagePath = `img/${card.suit}${card.value}.png`;
+    return `<span class="card"><img src="${imagePath}" alt="${value} of ${suit}" class="card-img"></span>`;
+}
+
+// When the player wins
+function announceWinner(winner) {
+    if (winner === 'player') {
+        const winAmount = currentBet * 2;
+        currentUserProfile.totalBalance += winAmount;
+        currentUserProfile.totalProfit += (winAmount - currentBet);
+        updateBalance(userIndex, winAmount); // Add winnings
+        updateProfit(userIndex, winAmount - currentBet); // Update profit
+    } else if (winner === 'dealer') {
+        currentUserProfile.totalProfit -= currentBet;
+        updateProfit(userIndex, -currentBet); // Update profit
+    } else {
+        currentUserProfile.totalBalance += currentBet; // Return bet
+        updateBalance(userIndex, currentBet);
+    }
+    saveUserProfile();
+    
+    if (winner === 'player') {
+        resultDisplay.textContent = "You Win!";
+        totalWins += 1;
+        totalProfit += currentBet;
+        updateBalanceDisplay(currentBet * 2, true); // Add winnings to balance
+        console.log(`Result: Player Wins`);
+    } else if (winner === 'dealer') {
+        resultDisplay.textContent = "Dealer Wins!";
+        totalLosses += currentBet;
+        totalProfit -= currentBet;
+        console.log(`Result: Dealer Wins`);
+    } else {
+        resultDisplay.textContent = "It's a Tie!";
+        updateBalanceDisplay(currentBet, true); // Return the bet to the player
+        console.log(`Result: It's a Tie`);
+    }
+
+    console.log(`After Game - Balance: £${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`);
+
+    currentBet = 0;
+    updateStatisticsDisplay();
+    updateUserProfile();
+    gameInProgress = false;
+
+    playButton.classList.add('d-none');
+    hitButton.classList.add('d-none');
+    standButton.classList.add('d-none');
+    restartButton.classList.remove('d-none');
+    document.getElementById('toggle-stats-button').classList.add('d-none');
+    clearBetButton.classList.add('d-none'); // Hide after game ends
+}
+
+function restartGame() {
+    if (gameInProgress) {
+        openModal("Game is in progress. Please finish the current game first.");
+        return;
+    }
+
+    resetGameState();
+    clearCardDisplay();
+    updateStatisticsDisplay();
+
+    // Reset betting area text
+    bettingArea.innerHTML = "Betting Area: Place Your Bets!";
+    
+    // Only show betting area and chips section
+    chipsSection.classList.remove('d-none');
+    bettingArea.classList.remove('d-none');
+    document.querySelector('.chips-wrapper').classList.remove('d-none');
+
+    // Hide ALL game control buttons including clear bet
+    playButton.classList.add('d-none');
+    hitButton.classList.add('d-none');
+    standButton.classList.add('d-none');
+    restartButton.classList.add('d-none');
+    clearBetButton.classList.add('d-none');
+
+    gameContainer.classList.remove('game-started');
+    document.querySelector('.navbar').classList.remove('navbar-hidden'); // Show navbar on restart
+}
+
+function resetGameState() {
+    dealerHand = [];
+    playerHand = [];
+    dealerHiddenCard = null;
+    deck = createDeck();
+    resultDisplay.textContent = "";
+    gameInProgress = false;
+}
+
+function clearCardDisplay() {
+    dealerCards.innerHTML = "";
+    dealerTotalValue.textContent = "Dealer hand total: ?";
+    playerCards.innerHTML = "";
+    playerTotalValue.textContent = "Player hand total: ?";
+}
+
+// Import userProfile functions
+/* Assuming you're using ES6 modules, otherwise include <script src="userProfile.js"></script> in your HTML */
+
+// Retrieve current user profile
+let currentUserProfile;
+
+currentUserProfile = getCurrentUserProfile();
+
+// After determining the game outcome (win/lose)
+function handleGameOutcome(result, amount) {
+    let currentUserProfile = getCurrentUserProfile();
+    
+    if (result === 'win') {
+        currentUserProfile.currentBalance += amount;
+        currentUserProfile.totalProfit += amount;
+        currentUserProfile.totalWins += 1;
+    } else if (result === 'lose') {
+        currentUserProfile.currentBalance -= amount;
+        currentUserProfile.totalLosses += amount;
+    }
+
+    currentUserProfile.totalBets += amount;
+    saveUserProfile();
+
+    // Update the display if necessary
+    updateUserStats(); // Ensure this function is available or emit an event to update the display
+}
+
+let userProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
+let userIndex = parseInt(localStorage.getItem('currentUserIndex'), 10);
+currentUserProfile = userProfiles[userIndex];
+
+function updateBalance(amount) {
+    if (!currentUserProfile) return;
+    currentUserProfile.currentBalance += amount;
+    currentUserProfile.totalProfit += amount;
+    saveUserProfile(currentUserProfile);
+    updateUserStatsDisplay(); // Rename if necessary
+}
+
+function saveUserProfile() {
+    userProfiles[userIndex] = currentUserProfile;
+    localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
+}
+
+function updateUserStatsDisplay() {
+    // Update the DOM elements related to user stats
+    totalProfitDisplay.textContent = `£${currentUserProfile.totalProfit.toFixed(2)}`;
+    totalLostDisplay.textContent = `£${currentUserProfile.totalLosses.toFixed(2)}`;
+    totalBetDisplay.textContent = `£${currentUserProfile.totalBets.toFixed(2)}`;
+    // Ensure 'highestCrash' is defined or remove if not applicable
+    // highestCrashDisplay.textContent = `${currentUserProfile.highestCrash.toFixed(2)}x`;
+}
+
+// Example: On win
+
+// Example: On loss
+
+function getCurrentUserProfile() {
+    // Implement logic to retrieve the current user profile
+    const profiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
+    const index = parseInt(localStorage.getItem('currentUserIndex'), 10);
+    if (!isNaN(index) && index >= 0 && index < profiles.length) {
+        return profiles[index];
+    }
+    return {};
+}
+
+function canPlaceBet(value) {
+    if (isNaN(value) || value <= 0) {
+        openModal("Invalid bet amount");
+        return false;
+    }
+    if (value > totalBalance) {
+        openModal("Insufficient balance");
+        return false;
+    }
+    return true;
+}
+

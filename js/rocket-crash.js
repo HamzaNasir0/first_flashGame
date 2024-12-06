@@ -1,522 +1,446 @@
-// Rocket Crash Game Variables
-let profit = 0;
-let totalBalance = 0;
-let multiplier = 1.0; // Start multiplier from 1
-let isPlaying = false;
-let crashMultiplier;
-let multiplierInterval;
-let betAmount = 0;
-let pastCrashes = []; // Array to store past crash points
-let isWatchingOnly = false; // Flag to track "watch only" mode
-let highestCashOutMultiplier = 0; // Variable to track the highest cash out multiplier
-let highestCashOutBet = 0; // Variable to track the highest cash out bet amount
-let highestCashOutProfit = 0; // Variable to track the highest cash out profit
+document.addEventListener('DOMContentLoaded', () => {
+    // Rocket Crash Game Variables
+    let multiplier = 1.0; // Start multiplier from 1
+    let isPlaying = false;
+    let crashMultiplier;
+    let multiplierInterval;
+    let pastCrashes = []; // Array to store past crash points
+    let totalProfit = 0;
+    let totalLost = 0;
+    let totalBet = 0;
+    let highestCrash = 0;
 
-const multiplierDisplay = document.getElementById("multiplier");
-const resultDisplay = document.getElementById("result");
-const placeBetButton = document.getElementById("place-bet-button");
-const cashOutButton = document.getElementById("cash-out-button");
-const skipToCrashButton = document.getElementById("skip-to-crash-button");
-const watchOnlyButton = document.getElementById("watch-only-button");
-const betAmountInput = document.getElementById("bet-amount");
-const profitDisplay = document.getElementById("rocket-profit");
-const crashPointDisplay = document.getElementById("crash-point");
-const pastCrashList = document.getElementById("past-crash-list");
-const graphCanvas = document.getElementById("multiplier-graph");
-const balanceDisplay = document.getElementById("current-balance");
-const highestCashOutDisplay = document.getElementById("highest-cash-out");
+    // Retrieve user profiles and current user index
+    const userProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
+    const userIndex = parseInt(localStorage.getItem('currentUserIndex'), 10);
 
-const bet100Button = document.getElementById("bet-100-button");
-const bet1000Button = document.getElementById("bet-1000-button"); // This is now the "All In" button
-const errorMessageDisplay = document.getElementById("error-message");
+    // Validate user index
+    if (isNaN(userIndex) || userIndex < 0 || userIndex >= userProfiles.length) {
+        showModal('Invalid user. Please log in again.');
+        window.location.href = 'user-auth.html'; // Redirect to login page
+        return;
+    }
 
-// Function to format money
-function formatMoney(amount) {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount);
-}
+    // Get current user profile
+    let currentUserProfile = userProfiles[userIndex];
 
-// Load user profile from localStorage
-let userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-let currentUserIndex = parseInt(localStorage.getItem("currentUserIndex"), 10);
-console.log(`Current User Index: ${currentUserIndex}`); // Debug
-let currentUserProfile = userProfiles[currentUserIndex];
-console.log(`Current User Profile: ${JSON.stringify(currentUserProfile)}`); // Debug
+    const betInput = document.getElementById('bet-amount');
+    const bet100Button = document.getElementById('bet-100-button');
+    const bet1000Button = document.getElementById('bet-1000-button');
+    const placeBetButton = document.getElementById('place-bet-button');
+    const cashOutButton = document.getElementById('cash-out-button');
+    const watchOnlyButton = document.getElementById('watch-only-button');
+    const balanceDisplay = document.getElementById('current-balance');
 
-if (currentUserProfile) {
-    // Parse the values to make sure they are numbers
-    profit = parseFloat(currentUserProfile.totalProfit) || 0;
-    totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
-    highestCashOutBet = parseFloat(currentUserProfile.highestCashOutBet) || 0;
-    highestCashOutProfit = parseFloat(currentUserProfile.highestCashOutProfit) || 0;
-    highestCashOutMultiplier = parseFloat(currentUserProfile.highestCashOutMultiplier) || 0;
-    updateProfitDisplay();
-    updateBalanceDisplay();
-    updateHighestCashOutDisplay();
-} else {
-    console.error("No user profile found for the current index."); // Debug
-    profit = 0; // If no user profile is found, initialize profit to 0
-    totalBalance = 0; // If no user profile is found, initialize balance to 0
-    highestCashOutBet = 0; // If no user profile is found, initialize highest cash out bet to 0
-    highestCashOutProfit = 0; // If no user profile is found, initialize highest cash out profit to 0
-    highestCashOutMultiplier = 0; // If no user profile is found, initialize highest cash out multiplier to 0
-    updateProfitDisplay();
-    updateBalanceDisplay();
-    updateHighestCashOutDisplay();
-}
+    const multiplierDisplay = document.getElementById("multiplier");
+    const pastCrashList = document.getElementById("past-crash-list");
+    const graphCanvas = document.getElementById("multiplier-graph");
+    const returnButton = document.getElementById('return-button');
 
-// Initialize Chart.js for the graph
-const ctx = graphCanvas.getContext("2d");
-let chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Multiplier Growth',
-            data: [],
-            borderColor: 'rgba(255, 215, 0, 0.8)', // Gold color for the line
-            borderWidth: 2,
-            pointRadius: 0,
-            fill: false // Disable the fill beneath the line
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            x: {
-                grid: {
-                    color: "rgba(255, 255, 255, 0.1)"
-                },
-                ticks: {
-                    stepSize: 2, // Set x-axis step size to 2
-                    callback: function(value, index, values) {
-                        return value % 2 === 0 ? value : ''; // Show label every 2 seconds
-                    }
-                }
-            },
-            y: {
-                min: 1, // Ensure y-axis starts at 1
-                grid: {
-                    color: "rgba(255, 255, 255, 0.1)"
-                },
-                ticks: {
-                    stepSize: 0.2, // Set y-axis step size to 0.2
-                    callback: function(value) {
-                        return value.toFixed(1); // Format y-axis labels to one decimal place
-                    }
-                }
-            }
+    const gameStatsButton = document.getElementById('game-stats-button');
+    const gameStats = document.getElementById('game-stats');
+    const totalProfitDisplay = document.getElementById('total-profit');
+    const totalLostDisplay = document.getElementById('total-lost');
+    const totalBetDisplay = document.getElementById('total-bet');
+    const highestCrashDisplay = document.getElementById('highest-crash');
+    const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+    const messageModalBody = document.getElementById('messageModalBody');
+
+    const navbar = document.querySelector('.navbar-glass');
+    let lastScrollTop = 0;
+
+    window.addEventListener('scroll', () => {
+        if (!navbar) return; // Add null check
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop) {
+            navbar.style.top = '-80px'; // Adjust based on navbar height
+        } else {
+            navbar.style.top = '0';
+        }
+        lastScrollTop = scrollTop;
+    });
+
+    // Initialize Chart.js for the graph
+    const ctx = graphCanvas.getContext("2d");
+    let chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Multiplier Growth',
+                data: [],
+                borderColor: 'rgba(255, 215, 0, 0.8)', // Gold color for the line
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false // Disable the fill beneath the line
+            }]
         },
-        plugins: {
-            legend: {
-                display: false
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Ensure the chart maintains aspect ratio
+            scales: {
+                x: {
+                    grid: {
+                        color: "rgba(255, 255, 255, 0.05)"
+                    },
+                    ticks: {
+                        color: "rgba(255, 255, 255, 0.5)",
+                        stepSize: 2, // Set x-axis step size to 2
+                        callback: function(value, index, values) {
+                            return value % 2 === 0 ? value : ''; // Show label every 2 seconds
+                        }
+                    }
+                },
+                y: {
+                    min: 1, // Ensure y-axis starts at 1
+                    grid: {
+                        color: "rgba(255, 255, 255, 0.05)"
+                    },
+                    ticks: {
+                        color: "rgba(255, 255, 255, 0.5)",
+                        stepSize: 0.2, // Set y-axis step size to 0.2
+                        callback: function(value) {
+                            return value.toFixed(1); // Format y-axis labels to one decimal place
+                        }
+                    }
+                }
             },
-            annotation: {
-                annotations: {
-                    arrow: {
-                        type: 'line',
-                        mode: 'vertical',
-                        scaleID: 'x',
-                        value: 0, // Initial value, will be updated dynamically
-                        borderColor: 'red',
-                        borderWidth: 2,
-                        label: {
-                            enabled: true,
-                            content: 'Crash Point',
-                            position: 'start'
-                        },
-                        endValue: 1, // Add end value for arrow
-                        arrowHeads: {
-                            end: {
+            plugins: {
+                legend: {
+                    display: false
+                },
+                annotation: {
+                    annotations: {
+                        arrow: {
+                            type: 'line',
+                            mode: 'vertical',
+                            scaleID: 'x',
+                            value: 0, // Initial value, will be updated dynamically
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            label: {
                                 enabled: true,
-                                fill: true
+                                content: 'Crash Point',
+                                position: 'start'
+                            },
+                            endValue: 1, // Add end value for arrow
+                            arrowHeads: {
+                                end: {
+                                    enabled: true,
+                                    fill: true
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
-});
+    });
 
-// Function to show error message
-function showError(message) {
-    errorMessageDisplay.textContent = message;
-    errorMessageDisplay.style.display = "block";
-    setTimeout(() => {
-        errorMessageDisplay.style.display = "none";
-    }, 3000); // Hide after 3 seconds
-}
+    // Add new event listeners after chart initialization
+    bet1000Button.addEventListener('click', () => {
+        betInput.value = currentUserProfile.totalBalance;
+    });
 
-// Function to hide all buttons except Cash Out
-function hideAllButtonsExceptCashOut() {
-    betAmountInput.style.display = "none"; // Hide Enter Bet Amount input
-    bet100Button.style.display = "none";
-    bet1000Button.style.display = "none";
-    placeBetButton.style.display = "none";
-    skipToCrashButton.style.display = "none";
-    watchOnlyButton.style.display = "none";
-    cashOutButton.style.display = "inline-block";
-}
+    gameStatsButton.addEventListener('click', () => {
+        gameStats.classList.toggle('d-none');
+        updateStatsDisplay();
+    });
 
-// Function to show all buttons
-function showAllButtons() {
-    betAmountInput.style.display = "inline-block"; // Show Enter Bet Amount input
-    bet100Button.style.display = "inline-block";
-    bet1000Button.style.display = "inline-block";
-    placeBetButton.style.display = "inline-block";
-    skipToCrashButton.style.display = "inline-block";
-    watchOnlyButton.style.display = "inline-block";
-    cashOutButton.style.display = "none"; // Hide Cash Out button initially
-}
-
-// Place Bet Button Event Listener
-placeBetButton.addEventListener("click", () => {
-    if (isPlaying) return;
-
-    if (placeBetButton.textContent === "Play Again") {
-        resetGame();
-        return;
+    function updateStatsDisplay() {
+        totalProfitDisplay.textContent = `£${totalProfit.toFixed(2)}`;
+        totalLostDisplay.textContent = `£${totalLost.toFixed(2)}`;
+        totalBetDisplay.textContent = `£${totalBet.toFixed(2)}`;
+        highestCrashDisplay.textContent = `${highestCrash.toFixed(2)}x`;
     }
 
-    console.log(`Current Balance before bet: ${totalBalance}`); // Debug
-
-    betAmount = parseFloat(betAmountInput.value);
-    if (isNaN(betAmount) || betAmount <= 0) {
-        showError("Please enter a valid bet amount!");
-        return;
-    }
-
-    if (betAmount > totalBalance) {
-        showError("You cannot bet more than your current balance!");
-        return;
-    }
-
-    // Deduct bet amount from balance
-    totalBalance -= betAmount;
-    updateBalanceDisplay();
-    saveUserData(); // Save the new balance
-
-    crashPointDisplay.textContent = ""; // Clear the previous crash point
-    isWatchingOnly = false; // Reset watch-only mode
-    startGame();
-
-    hideAllButtonsExceptCashOut(); // Hide buttons when game starts
-});
-
-// Function to Reset Game
-function resetGame() {
-    betAmountInput.value = ''; // Clear the bet amount input field
-    placeBetButton.textContent = "Place Bet"; // Reset button text to "Place Bet"
-    placeBetButton.classList.remove("play-again"); // Remove play-again class
-    resultDisplay.textContent = ''; // Clear result display
-    crashPointDisplay.textContent = ''; // Clear crash point display
-    // Re-enable all buttons
-    bet100Button.disabled = false;
-    bet1000Button.disabled = false;
-    placeBetButton.disabled = false;
-    watchOnlyButton.disabled = false;
-    skipToCrashButton.disabled = true;
-    cashOutButton.disabled = true;
-    cashOutButton.style.display = "none"; // Hide Cash Out button when game resets
-    showAllButtons(); // Show all buttons when game resets
-}
-
-// Watch Only Button Event Listener
-watchOnlyButton.addEventListener("click", () => {
-    if (isPlaying) return;
-
-    betAmount = 0; // No bet when watching
-    crashPointDisplay.textContent = ""; // Clear the previous crash point
-    isWatchingOnly = true; // Set to watch-only mode
-    startGame();
-});
-
-// Event Listeners for Bet Buttons
-bet100Button.addEventListener("click", () => {
-    let newBetAmount = (parseFloat(betAmountInput.value) || 0) + 100;
-    betAmountInput.value = newBetAmount > totalBalance ? totalBalance : newBetAmount;
-});
-
-bet1000Button.addEventListener("click", () => {
-    betAmountInput.value = totalBalance; // All In
-});
-
-// Function to Place Bet
-function placeBet() {
-    if (isPlaying) return;
-
-    if (placeBetButton.textContent === "Play Again") {
-        resetGame();
-        return;
-    }
-
-    betAmount = parseFloat(betAmountInput.value);
-    if (isNaN(betAmount) || betAmount <= 0) {
-        showError("Please enter a valid bet amount!");
-        return;
-    }
-
-    if (betAmount > totalBalance) {
-        showError("You cannot bet more than your current balance!");
-        return;
-    }
-
-    // Deduct bet amount from balance
-    totalBalance -= betAmount;
-    updateBalanceDisplay();
-    saveUserData(); // Save the new balance
-
-    crashPointDisplay.textContent = ""; // Clear the previous crash point
-    isWatchingOnly = false; // Reset watch-only mode
-    startGame();
-
-    hideAllButtonsExceptCashOut(); // Hide buttons when game starts
-}
-
-// Start Game Function
-function startGame() {
-    isPlaying = true;
-    multiplier = 1.0; // Initialize multiplier to 1
-    crashMultiplier = parseFloat(generateCrashMultiplier().toFixed(2)); // Generate and round crash multiplier
-    cashOutButton.disabled = isWatchingOnly; // Cash out button only enabled if betting
-    placeBetButton.disabled = true;
-    skipToCrashButton.disabled = !isWatchingOnly; // Enable skip button if watch-only mode
-    watchOnlyButton.disabled = true;
-    bet100Button.disabled = true; // Disable Bet £100 button
-    bet1000Button.disabled = true; // Disable Bet £1000 button
-    resultDisplay.textContent = "";
-
-    // Reset Chart Data
-    chart.data.labels = [];
-    chart.data.datasets[0].data = [];
-    chart.update();
-
-    let time = 0;
-
-    // Set Interval for a slower increase
-    multiplierInterval = setInterval(() => {
-        multiplier += 0.05; // Slower increment to make higher multipliers harder to reach
-        updateMultiplierDisplay();
-
-        // Update Chart Data
-        time += 0.1; // Increment time for x-axis
-        if (time % 2 === 0) {
-            chart.data.labels.push(time.toFixed(0)); // Add label every 2 seconds
+    // Update watchOnlyButton event listener to handle both watch-only and skip-to-crash functionality
+    watchOnlyButton.addEventListener('click', () => {
+        if (isPlaying) {
+            clearInterval(multiplierInterval);
+            multiplier = crashMultiplier;
+            updateMultiplierDisplay();
+            endGame(false, true);
         } else {
-            chart.data.labels.push(''); // Add empty label for other intervals
+            hideAllControls();
+            watchOnlyButton.textContent = 'Skip to Crash';
+            watchOnlyButton.classList.remove('secondary');
+            watchOnlyButton.classList.add('primary');
+            watchOnlyButton.style.display = 'block';
+            returnButton.classList.remove('d-none');
+            returnButton.disabled = true; // Disable the return button when the rocket is in play
+            gameStatsButton.style.display = 'none';
+            startGame(true); // Pass true to indicate watch-only mode
         }
-        chart.data.datasets[0].data.push(multiplier.toFixed(2));
+    });
+
+    // Add event listener for returnButton
+    returnButton.addEventListener('click', () => {
+        showAllControls();
+        returnButton.classList.add('d-none');
+        gameStatsButton.style.display = 'block';
+    });
+
+    function hideAllControls() {
+        betInput.style.display = 'none';
+        bet100Button.style.display = 'none';
+        bet1000Button.style.display = 'none';
+        placeBetButton.style.display = 'none';
+        watchOnlyButton.style.display = 'none';
+        gameStatsButton.style.display = 'none';
+        if (navbar) navbar.style.top = '-80px'; // Add null check
+    }
+
+    function showAllControls() {
+        betInput.style.display = 'block';
+        bet100Button.style.display = 'block';
+        bet1000Button.style.display = 'block';
+        placeBetButton.style.display = 'block';
+        watchOnlyButton.style.display = 'block';
+        watchOnlyButton.textContent = 'Watch Only';
+        watchOnlyButton.classList.remove('primary');
+        watchOnlyButton.classList.add('secondary');
+        cashOutButton.classList.add('d-none');
+        gameStatsButton.style.display = 'block';
+        returnButton.disabled = false; // Enable the return button when the rocket is not in play
+        if (navbar) navbar.style.top = '0'; // Add null check
+    }
+
+    // Update place bet listener
+    placeBetButton.addEventListener('click', () => {
+        const betAmount = parseFloat(betInput.value);
+        if (!betAmount || betAmount <= 0 || betAmount > currentUserProfile.totalBalance) {
+            showModal('Invalid bet amount');
+            return;
+        }
+        currentUserProfile.totalBalance -= betAmount;
+        totalBet += betAmount;
+        updateBalance();
+        hideAllControls();
+        cashOutButton.classList.remove('d-none');
+        gameStats.classList.add('d-none'); // Hide game stats when the game starts
+        startGame(false); // Pass false to indicate betting mode
+    });
+
+    // Update cash out listener to calculate and pass the current profit
+    cashOutButton.addEventListener('click', () => {
+        const betAmount = parseFloat(betInput.value);
+        const winnings = betAmount * multiplier;
+        currentUserProfile.totalBalance += winnings;
+        const currentProfit = winnings - betAmount;
+        totalProfit += currentProfit;
+        updateBalance();
+        endGame(true, false, currentProfit); // Pass true for cashedOut, false for isWatchOnly, and currentProfit
+        showAllControls();
+    });
+
+    // Start Game Function
+    function startGame(isWatchOnly) {
+        isPlaying = true;
+        multiplier = 1.0; // Initialize multiplier to 1
+        crashMultiplier = parseFloat(generateCrashMultiplier().toFixed(2)); // Generate and round crash multiplier
+
+        // Reset Chart Data
+        chart.data.labels = [];
+        chart.data.datasets[0].data = [];
         chart.update();
 
-        // Check if rocket crashes
-        if (multiplier >= crashMultiplier) {
-            endGame(false); // End the game with a regular crash
+        let time = 0;
+
+        // Set Interval for a slower increase
+        multiplierInterval = setInterval(() => {
+            multiplier += 0.05; // Slower increment to make higher multipliers harder to reach
+            updateMultiplierDisplay();
+
+            // Update Chart Data
+            time += 0.1; // Increment time for x-axis
+            if (time % 2 === 0) {
+                chart.data.labels.push(time.toFixed(0)); // Add label every 2 seconds
+            } else {
+                chart.data.labels.push(''); // Add empty label for other intervals
+            }
+            chart.data.datasets[0].data.push(multiplier.toFixed(2));
+            chart.update();
+
+            // Check if rocket crashes
+            if (multiplier >= crashMultiplier) {
+                endGame(false, isWatchOnly); // End the game with a regular crash
+            }
+        }, 300); // Increase interval duration to make growth smoother (every 300ms)
+    }
+
+    // Function to Generate Balanced Crash Multiplier
+    function generateCrashMultiplier() {
+        let randomValue = Math.random();
+        let scaledValue = 1 + Math.pow(randomValue, 5) * 49; // Ensure scaledValue is between 1 and 50
+        return scaledValue;
+    }
+
+    // End Game Function
+    function endGame(cashedOut, isWatchOnly, profit = 0) {
+        clearInterval(multiplierInterval);
+        isPlaying = false;
+
+        const betAmount = parseFloat(betInput.value);
+        
+        // Clear bet input
+        betInput.value = '';
+
+        if (!cashedOut) {
+            totalLost += betAmount; // Track money lost only if not cashed out
+            // Update user profile with loss
+            currentUserProfile.totalLosses = (currentUserProfile.totalLosses || 0) + betAmount;
+        } else {
+            // Update user profile with profit
+            currentUserProfile.totalProfits = (currentUserProfile.totalProfits || 0) + profit;
         }
-    }, 300); // Increase interval duration to make growth smoother (every 300ms)
-}
 
-// Function to Generate Balanced Crash Multiplier
-function generateCrashMultiplier() {
-    let randomValue = Math.random();
-    let scaledValue = 1 + Math.pow(randomValue, 5) * 49; // Ensure scaledValue is between 1 and 50
-    return scaledValue;
-}
+        // Update total games played
+        currentUserProfile.totalGames = (currentUserProfile.totalGames || 0) + 1;
 
-// Cash Out Button Event Listener
-cashOutButton.addEventListener("click", () => {
-    if (!isPlaying || isWatchingOnly) return;
+        // Save updated profile to localStorage
+        userProfiles[userIndex] = currentUserProfile;
+        localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
 
-    clearInterval(multiplierInterval);
-    isPlaying = false;
-    cashOutButton.disabled = true;
-    placeBetButton.disabled = false;
-    watchOnlyButton.disabled = false;
-    skipToCrashButton.disabled = true;
-    bet100Button.disabled = false; // Enable Bet £100 button
-    bet1000Button.disabled = false; // Enable Bet £1000 button
-
-    let winnings = parseFloat((betAmount * multiplier).toFixed(2)); // Round winnings
-    let profitFromBet = parseFloat((winnings - betAmount).toFixed(2)); // Round profit
-    totalBalance += winnings;
-    profit += profitFromBet; // Update total profit
-    currentUserProfile.totalProfit = profit;
-
-    // Update highest cash out if current profit from bet is greater
-    if (profitFromBet > highestCashOutProfit) {
-        highestCashOutBet = betAmount;
-        highestCashOutProfit = profitFromBet; // Correctly set the profit made from the bet
-        highestCashOutMultiplier = parseFloat(multiplier.toFixed(2)); // Round multiplier
-        currentUserProfile.highestCashOutBet = highestCashOutBet;
-        currentUserProfile.highestCashOutProfit = highestCashOutProfit;
-        currentUserProfile.highestCashOutMultiplier = highestCashOutMultiplier;
-        updateHighestCashOutDisplay();
-    }
-
-    updateProfitDisplay();
-    updateBalanceDisplay();
-    saveUserData();
-
-    resultDisplay.style.color = "lightgreen";
-    resultDisplay.textContent = `You cashed out at x${multiplier.toFixed(2)}, placed a bet of ${formatMoney(betAmount)}, and won ${formatMoney(winnings)} (${formatMoney(profitFromBet)} in profit)!`;
-
-    // Update Stats
-    updateUserStats(betAmount, parseFloat(winnings));
-    crashPointDisplay.textContent = `The rocket would have crashed at x${crashMultiplier.toFixed(2)}.`;
-    updatePastCrashes(crashMultiplier);
-
-    // Show Play Again button after cash out
-    placeBetButton.textContent = "Play Again";
-    placeBetButton.classList.add("play-again"); // Add play-again class
-    placeBetButton.style.display = "inline-block";
-    cashOutButton.style.display = "none"; // Hide Cash Out button after cash out
-});
-
-// End Game Function
-function endGame(instantCrash) {
-    clearInterval(multiplierInterval);
-    isPlaying = false;
-    cashOutButton.disabled = true;
-    placeBetButton.disabled = false;
-    skipToCrashButton.disabled = true;
-    watchOnlyButton.disabled = false;
-    bet100Button.disabled = false; // Enable Bet £100 button
-    bet1000Button.disabled = false; // Enable Bet £1000 button
-
-    betAmountInput.value = ''; // Clear the bet amount input field
-    console.log("Bet amount input field cleared"); // Debug
-
-    if (instantCrash) {
-        resultDisplay.style.color = "red";
-        resultDisplay.textContent = `The rocket crashed instantly at x${crashMultiplier.toFixed(2)}!`;
-    } else {
-        resultDisplay.style.color = "red";
-        resultDisplay.textContent = `The rocket crashed at x${multiplier.toFixed(2)}!`;
-    }
-
-    if (!isWatchingOnly) {
-        profit -= betAmount;
-        updateProfitDisplay();
-        currentUserProfile.totalProfit = profit;
-
-        // Properly track losses
-        currentUserProfile.totalLosses += betAmount; 
-        console.log("Total Losses Updated: ", currentUserProfile.totalLosses); // Debug
-
-        updateUserStats(betAmount, 0); // Update with loss
-        saveUserData(); // Ensure losses are saved
-    }
-
-    updatePastCrashes(crashMultiplier);
-    showAllButtons(); // Show all buttons after skipping to crash
-}
-
-// Update Multiplier Display Function
-function updateMultiplierDisplay() {
-    multiplierDisplay.textContent = `${multiplier.toFixed(2)}x`;
-}
-
-// Update Profit and Balance Display Functions
-function updateProfitDisplay() {
-    profitDisplay.textContent = `Total Profit: ${formatMoney(profit)}`;
-}
-
-function updateBalanceDisplay() {
-    balanceDisplay.innerHTML = `Current Balance: <span class="money">${formatMoney(totalBalance)}</span>`;
-}
-
-// Update Highest Cash Out Display Function
-function updateHighestCashOutDisplay() {
-    highestCashOutDisplay.textContent = `Highest Cash Out: Bet ${formatMoney(highestCashOutBet)}, Profit ${formatMoney(highestCashOutProfit)}, at x${highestCashOutMultiplier.toFixed(2)}`;
-}
-
-// Update Past Crashes Function
-function updatePastCrashes(crashMultiplier) {
-    pastCrashes.unshift(crashMultiplier);
-    if (pastCrashes.length > 7) {
-        pastCrashes.pop(); // Keep only the last 7 crashes
-    }
-    pastCrashList.innerHTML = pastCrashes.map(crash => {
-        const crashValue = `x${crash.toFixed(2)}`;
-        let crashClass = 'highlight-blue'; // Default to blue
-        if (crash >= 10) {
-            crashClass = 'highlight-green';
-        } else if (crash < 2) {
-            crashClass = 'highlight-red';
+        // Rest of existing endGame code...
+        if (cashedOut) {
+            multiplierDisplay.style.color = "green";
+            multiplierDisplay.innerHTML = `You cashed out at x${multiplier.toFixed(2)}!<br>Profit Made: £${profit.toFixed(2)}`;
+        } else if (multiplier <= 1.0) { // Handle crash at x1.00
+            multiplierDisplay.style.color = "red";
+            multiplierDisplay.textContent = `The rocket crashed instantly at x${crashMultiplier.toFixed(2)}!`;
+        } else { // Handle regular crash
+            multiplierDisplay.style.color = "red";
+            multiplierDisplay.textContent = `The rocket crashed at x${multiplier.toFixed(2)}!`;
         }
-        return `<span class="${crashClass}">${crashValue}</span>`;
-    }).join("   ");
-}
 
-// Function to Update User Stats
-function updateUserStats(bet, win) {
-    currentUserProfile.totalBets = (currentUserProfile.totalBets || 0) + bet;
-    currentUserProfile.totalWins = (currentUserProfile.totalWins || 0) + win;
-    currentUserProfile.totalGames = (currentUserProfile.totalGames || 0) + 1;
+        if (multiplier > highestCrash) {
+            highestCrash = multiplier;
+        }
 
-    // Update the amount lost if the user lost money
-    if (win === 0) {
-        currentUserProfile.totalLosses = (currentUserProfile.totalLosses || 0) + bet; // Increment by bet amount lost
-    }
-}
-
-// Function to Save User Data
-function saveUserData() {
-    console.log("Saving User Data..."); // Debug
-    console.log(`Total Balance: ${totalBalance}`); // Debug
-    console.log(`Total Profit: ${profit}`); // Debug
-    console.log(`Highest Cash Out Bet: ${highestCashOutBet}`); // Debug
-    console.log(`Highest Cash Out Profit: ${highestCashOutProfit}`); // Debug
-    console.log(`Highest Cash Out Multiplier: ${highestCashOutMultiplier}`); // Debug
-
-    if (!currentUserProfile) {
-        console.error("Cannot save data: currentUserProfile is undefined."); // Debug
-        return;
+        updatePastCrashes(crashMultiplier);
+        if (!isWatchOnly) {
+            showAllControls();
+        } else {
+            watchOnlyButton.style.display = 'block';
+            watchOnlyButton.textContent = 'Watch Only';
+            watchOnlyButton.classList.remove('primary');
+            watchOnlyButton.classList.add('secondary');
+            returnButton.disabled = false; // Enable the return button when the game ends
+        }
     }
 
-    currentUserProfile.totalBalance = parseFloat(totalBalance.toFixed(2));
-    currentUserProfile.totalProfit = parseFloat(profit.toFixed(2));
-    currentUserProfile.highestCashOutBet = parseFloat(highestCashOutBet.toFixed(2));
-    currentUserProfile.highestCashOutProfit = parseFloat(highestCashOutProfit.toFixed(2));
-    currentUserProfile.highestCashOutMultiplier = parseFloat(highestCashOutMultiplier.toFixed(2));
-    userProfiles[currentUserIndex] = currentUserProfile;
-    localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-}
+    // Update Multiplier Display Function
+    function updateMultiplierDisplay() {
+        multiplierDisplay.textContent = `${multiplier.toFixed(2)}x`;
+    }
 
-skipToCrashButton.addEventListener("click", () => {
-    if (!isPlaying || !isWatchingOnly) return;
+    // Update Past Crashes Function
+    function updatePastCrashes(crashMultiplier) {
+        pastCrashes.unshift(crashMultiplier);
+        if (pastCrashes.length > 5) { // Keep only the last 5 crashes
+            pastCrashes.pop();
+        }
+        pastCrashList.innerHTML = pastCrashes.map((crash, index) => {
+            const crashValue = `x${crash.toFixed(2)}`;
+            let crashClass = 'highlight-blue'; // Default to blue
+            if (crash >= 10) {
+                crashClass = 'highlight-green';
+            } else if (crash < 2) {
+                crashClass = 'highlight-red';
+            }
+            const separator = index < pastCrashes.length - 1 ? ' - ' : ''; // Add missing ':' and false condition
+            return `<span class="${crashClass}">${crashValue}</span>${separator}`;
+        }).join("");
+    }
 
-    clearInterval(multiplierInterval); // Immediately stop the multiplier growth
-    multiplier = crashMultiplier;     // Set the multiplier to crash point
-    updateMultiplierDisplay();        // Update the display
-    endGame(false);                   // Call the endGame logic
-    showAllButtons(); // Show all buttons after skipping to crash
-});
+    // Add new function to update balance display
+    function updateBalance() {
+        // Ensure totalBalance is a number before formatting
+        currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
+        balanceDisplay.innerHTML = `Current Balance: <span class="money">£${currentUserProfile.totalBalance.toFixed(2)}</span>`;
+        userProfiles[userIndex].totalBalance = currentUserProfile.totalBalance;
+        localStorage.setItem('userProfiles', JSON.stringify(userProfiles)); // Save balance to local storage
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const mobileMenu = document.getElementById("mobile-menu");
-    const navMenu = document.getElementById("nav-menu");
-    const toggleInfoButton = document.getElementById("toggle-info-button");
-    const toggleInfoElements = document.querySelectorAll(".toggle-info");
+    // Function to show modal with a message
+    function showModal(message) {
+        messageModalBody.textContent = message;
+        messageModal.show();
+    }
 
-    // Initialize aria-expanded to false
-    mobileMenu.setAttribute("aria-expanded", "false");
+    // Initial balance update
+    updateBalance();
 
-    mobileMenu.addEventListener("click", () => {
-        navMenu.classList.toggle("active");
-        const expanded = mobileMenu.getAttribute("aria-expanded") === "true" || false;
-        mobileMenu.setAttribute("aria-expanded", !expanded);
+    // Update bet input event listener near the start of the file
+    betInput.addEventListener('input', function() {
+        // Remove non-numeric characters except decimal point
+        this.value = this.value.replace(/[^\d.]/g, '');
+        
+        // Ensure only one decimal point
+        if ((this.value.match(/\./g) || []).length > 1) {
+            this.value = this.value.slice(0, -1);
+        }
+        
+        // Limit to 2 decimal places
+        if (this.value.includes('.')) {
+            let parts = this.value.split('.');
+            if (parts[1].length > 2) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        }
+        
+        // Ensure value doesn't exceed balance
+        if (parseFloat(this.value) > currentUserProfile.totalBalance) {
+            this.value = currentUserProfile.totalBalance;
+        }
     });
 
-    // Set initial state of the toggleInfoButton based on the display state of the toggle-info elements
-    const isInfoVisible = Array.from(toggleInfoElements).some(element => element.style.display === "block");
-    toggleInfoButton.textContent = isInfoVisible ? "Hide Info" : "Show More Info";
-
-    // Toggle Info Button Event Listener
-    toggleInfoButton.addEventListener("click", () => {
-        toggleInfoElements.forEach(element => {
-            element.style.display = element.style.display === "none" ? "block" : "none";
-        });
-        toggleInfoButton.textContent = toggleInfoButton.textContent === "Show More Info" ? "Hide Info" : "Show More Info";
+    // Keep this version near the end of the file
+    bet100Button.addEventListener('click', () => {
+        const currentValue = parseFloat(betInput.value) || 0;
+        const newAmount = Math.min(currentUserProfile.totalBalance, currentValue + 100);
+        betInput.value = newAmount.toFixed(2);
     });
+
+    // ...existing code handling game logic...
+
+    // ...existing code...
+
+    // In the updateUserProfile function, ensure numerical values are stored as numbers
+    function updateUserProfile() {
+        userProfiles[userIndex].totalProfit = parseFloat(totalProfit.toFixed(2));
+        userProfiles[userIndex].totalBalance = parseFloat(totalBalance.toFixed(2));
+        userProfiles[userIndex].totalWins = totalWins;
+        userProfiles[userIndex].totalLosses = parseFloat(totalLost.toFixed(2));
+        userProfiles[userIndex].totalBets = parseFloat(totalBet.toFixed(2));
+
+        localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+        updateUserStatsDisplay();
+    }
+
+    // After placing a bet
+    function placeBet(amount) {
+        currentUserProfile.totalBalance -= amount;
+        currentUserProfile.totalBets += amount;
+        updateBalance(userIndex, -amount); // Deduct bet
+        updateUserProfile();
+    }
+
+    // After winning
+    function handleWin(amount) {
+        currentUserProfile.totalBalance += amount;
+        currentUserProfile.totalProfit += (amount - currentBet);
+        updateBalance(userIndex, amount); // Add winnings
+        updateProfit(userIndex, amount - currentBet); // Update profit
+        updateUserProfile();
+    }
+
+    // After losing
+    function handleLoss(amount) {
+        currentUserProfile.totalProfit -= amount;
+        updateProfit(userIndex, -amount); // Update profit
+        updateUserProfile();
+    }
+
 });

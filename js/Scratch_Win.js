@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Define available emojis with associated values
+  // Main game logic
+
+  // Define variables and functions necessary for the game
+  // For example:
   const emojiSlots = [
     { emoji: "🍎", value: 25 },  // Apple
     { emoji: "🍌", value: 50 },  // Banana
@@ -11,12 +14,12 @@ document.addEventListener("DOMContentLoaded", () => {
     { emoji: "🍉", value: 1000 }  // Watermelon
   ];
 
-  // Grid configuration
-  const gridSize = 3; // 3x3 grid
+  const gridSize = 3;
+  let grid = [];
+  let scratched = [];
+
   const emojiGrid = document.getElementById("emojiGrid");
-  const coin = document.getElementById("coin");
   const playButton = document.getElementById("playButton");
-  const detailsButton = document.getElementById("detailsButton");
   const buttonsContainer = document.querySelector(".scratch-win__buttons");
 
   // Modal elements
@@ -42,13 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const noMatchPlayAgainButton = document.createElement("button");
   noMatchPlayAgainButton.id = "no-match-play-again-button";
-  
   noMatchPlayAgainButton.style.marginRight = "10px";
   noMatchPlayAgainButton.textContent = "Play Again";
 
   const noMatchCancelButton = document.createElement("button");
   noMatchCancelButton.id = "no-match-cancel-button";
-  
   noMatchCancelButton.style.marginLeft = "10px";
   noMatchCancelButton.textContent = "Cancel";
 
@@ -63,34 +64,230 @@ document.addEventListener("DOMContentLoaded", () => {
   noMatchModal.appendChild(noMatchMessage);
   document.body.appendChild(noMatchModal);
 
-  // Game state variables
-  let grid = []; // To store emoji values for winning logic
-  let scratched = []; // To track scratched cells
-  let revealedCount = 0; // Track how many cells have been revealed
-  let hasWon = false; // To ensure win is only triggered once
-  let hasWonPopupShown = false; // Track if win popup has been shown
-  let gameInProgress = false; // Track if a game is currently in progress
+  // Ensure currentUserProfile is defined
+  let currentUserProfile = {};
 
-  // Function to display a non-blocking win message
-  const displayWinMessage = (amountWon) => {
-    winMessage.innerHTML = `You won <strong>${formatMoney(amountWon)}</strong>! Would you like to play again?`;
-    winModal.style.display = "flex";
-    currentUserProfile.totalBalance += amountWon; // Update balance on win
-    saveUserProfile();
-    updateUserBalanceDisplay();
+  // Initialize user profile
+  const initializeUserProfile = () => {
+    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    const userIndex = parseInt(localStorage.getItem("currentUserIndex"), 10);
+
+    if (!isNaN(userIndex) && userProfiles[userIndex]) {
+      currentUserProfile = userProfiles[userIndex];
+      updateUserBalanceDisplay();
+    } else {
+      alert("User not found. Redirecting to login.");
+      window.location.href = "user-auth.html"; // Redirect to login if user not found
+    }
   };
 
-  // Function to display a non-blocking "No Match" message as a modal
-  const displayNoMatchMessage = () => {
-    noMatchModal.style.display = "flex";
-    // Deduct play cost on no match
-    currentUserProfile.totalBalance -= 100;
-    saveUserProfile();
-    updateUserBalanceDisplay();
+  // Update balance display
+  const updateUserBalanceDisplay = () => {
+    if (!balanceDisplay) {
+      console.error("Balance element not found in the DOM.");
+      return;
+    }
+    balanceDisplay.textContent = `Balance: ${formatMoney(currentUserProfile.totalBalance)}`;
   };
 
-  // Function to check for a win
+  // Format money as currency
+  const formatMoney = (amount) => {
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount);
+  };
+
+  // Deduct play cost and validate balance
+  const deductPlayCost = (cost) => {
+    if (currentUserProfile.totalBalance >= cost) {
+      currentUserProfile.totalBalance -= cost;
+      saveUserProfile();
+      updateUserBalanceDisplay();
+      return true;
+    } else {
+      alert("Insufficient balance to play.");
+      return false;
+    }
+  };
+
+  // Save user profile to localStorage
+  const saveUserProfile = () => {
+    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    const userIndex = parseInt(localStorage.getItem("currentUserIndex"), 10);
+
+    if (!isNaN(userIndex) && userProfiles[userIndex]) {
+      userProfiles[userIndex] = currentUserProfile;
+      localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+    } else {
+      console.error("Error: Unable to save user profile. User not found.");
+    }
+  };
+
+  const initializeGrid = () => {
+    // Function to initialize the game grid
+    emojiGrid.innerHTML = ""; // Clear the previous grid
+    grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+    scratched = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
+
+    // Introduce a 30% chance of having a winning configuration
+    const shouldHaveWinningCombination = Math.random() < 0.3;
+
+    if (shouldHaveWinningCombination) {
+      // Generate a winning combination
+      const predefinedEmoji = emojiSlots[Math.floor(Math.random() * emojiSlots.length)];
+
+      const winType = Math.floor(Math.random() * 3); // 0: row, 1: column, 2: diagonal
+
+      if (winType === 0) {
+        const winRow = Math.floor(Math.random() * gridSize);
+        for (let col = 0; col < gridSize; col++) {
+          grid[winRow][col] = predefinedEmoji;
+        }
+      } else if (winType === 1) {
+        const winCol = Math.floor(Math.random() * gridSize);
+        for (let row = 0; row < gridSize; row++) {
+          grid[row][winCol] = predefinedEmoji;
+        }
+      } else {
+        for (let i = 0; i < gridSize; i++) {
+          grid[i][i] = predefinedEmoji;
+        }
+      }
+    }
+
+    // Fill the rest of the grid with random emojis
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        if (grid[row][col] === null) {
+          grid[row][col] = emojiSlots[Math.floor(Math.random() * emojiSlots.length)];
+        }
+        const cell = createCell(row, col);
+        emojiGrid.appendChild(cell);
+      }
+    }
+  };
+
+  const createCell = (row, col) => {
+    // Function to create a cell in the grid
+    const cell = document.createElement("div");
+    cell.classList.add("scratch-win__cell");
+
+    const emoji = document.createElement("div");
+    emoji.classList.add("scratch-win__emoji");
+
+    // Assign the emoji from the grid array
+    let cellEmoji = grid[row][col].emoji;
+    emoji.textContent = cellEmoji;
+
+    cell.appendChild(emoji);
+
+    const canvas = document.createElement("canvas");
+    canvas.classList.add("scratch-win__foreground");
+    canvas.width = 300; // Increased for better resolution on high-density screens
+    canvas.height = 300;
+    cell.appendChild(canvas);
+
+    // Adjust canvas for high-DPI screens
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const scale = window.devicePixelRatio || 1;
+    canvas.width = 100 * scale;
+    canvas.height = 100 * scale;
+    ctx.scale(scale, scale);
+
+    // Create gradient overlay
+    const gradient = ctx.createLinearGradient(0, 0, 100, 100);
+    gradient.addColorStop(0, "#d4af37");
+    gradient.addColorStop(1, "#a67c00");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 100, 100);
+
+    let fullyScratched = false; // Prevent multiple counting for revealedCount
+
+    const scratch = (event) => {
+      if (!gameInProgress || hasWon) return;
+
+      event.preventDefault();
+      
+      const pointer = event.touches ? event.touches[0] : event;
+      const canvas = event.currentTarget;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext("2d");
+      
+      // Clear the entire canvas
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Get cell and reveal immediately
+      const cell = canvas.parentElement;
+      const cellRow = parseInt(cell.dataset.row);
+      const cellCol = parseInt(cell.dataset.col);
+      
+      if (!scratched[cellRow][cellCol]) {
+        scratched[cellRow][cellCol] = true;
+        revealedCount++;
+        canvas.remove();
+        
+        // Check for win/loss immediately
+        const amountWon = checkWin();
+        if (amountWon > 0) {
+          hasWon = true;
+          currentUserProfile.totalBalance += amountWon;
+          saveUserProfile();
+          updateUserBalanceDisplay();
+          displayWinMessage(amountWon);
+          gameInProgress = false;
+        } else if (revealedCount >= gridSize * gridSize) {
+          displayNoMatchMessage();
+          gameInProgress = false;
+        }
+      }
+    };
+
+    const calculateTransparency = (ctx) => {
+      const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data;
+      let transparentPixels = 0;
+
+      for (let i = 3; i < imageData.length; i += 4) {
+        if (imageData[i] === 0) transparentPixels++;
+      }
+
+      return transparentPixels / (ctx.canvas.width * ctx.canvas.height);
+    };
+
+    let isScratching = false;
+
+    const startScratch = (event) => {
+      event.preventDefault();
+      isScratching = true;
+      scratch(event);
+    };
+
+    const stopScratch = () => {
+      isScratching = false;
+    };
+
+    const scratchHandler = (event) => {
+      if (!isScratching) return;
+      scratch(event);
+    };
+
+    // Update event listeners for better mobile support
+    canvas.addEventListener("mousedown", scratch, { passive: false });
+    canvas.addEventListener("touchstart", scratch, { passive: false });
+
+    // Add document-level touch end listener
+    document.addEventListener("touchend", stopScratch);
+    document.addEventListener("touchcancel", stopScratch);
+
+    // Add data attributes to track cell position
+    cell.dataset.row = row;
+    cell.dataset.col = col;
+    cell.fullyScratched = false;
+
+    return cell;
+  };
+
   const checkWin = () => {
+    // Function to check for a winning combination
     const winningCombinations = [
       // Rows
       [[0, 0], [0, 1], [0, 2]],
@@ -131,333 +328,142 @@ document.addEventListener("DOMContentLoaded", () => {
     return 0; // No valid winning combination found
   };
 
-  // Retrieve the user profile and update balance display
-  const initializeUserProfile = () => {
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = parseInt(localStorage.getItem("currentUserIndex"), 10);
+  const checkGameStatus = () => {
+    if (!gameInProgress) return;
 
-    if (!isNaN(userIndex) && userProfiles[userIndex]) {
-      currentUserProfile = userProfiles[userIndex];
-      updateUserBalanceDisplay();
-    } else {
-      alert("User not found. Redirecting to login.");
-      window.location.href = "user-auth.html"; // Redirect to login if user not found
-    }
-  };
-
-  // Update user balance display
-  const updateUserBalanceDisplay = () => {
-    if (!balanceDisplay) {
-      console.error("Balance element not found in the DOM."); // Debug log
-      return;
-    }
-    balanceDisplay.textContent = `Balance: ${formatMoney(currentUserProfile.totalBalance)}`;
-  };
-
-  // Function to format money as currency
-  const formatMoney = (amount) => {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount);
-  };
-
-  // Deduct cost to play and validate if the user has enough balance
-  const deductPlayCost = (cost) => {
-    if (currentUserProfile.totalBalance >= cost) {
-      currentUserProfile.totalBalance -= cost;
+    const amountWon = checkWin();
+    if (amountWon > 0 && !hasWonPopupShown) {
+      hasWonPopupShown = true;
+      hasWon = true;
+      currentUserProfile.totalBalance += amountWon;
       saveUserProfile();
       updateUserBalanceDisplay();
-      return true;
-    } else {
-      alert("Insufficient balance to play.");
-      return false;
+      displayWinMessage(amountWon);
+      gameInProgress = false;
+    } else if (revealedCount >= gridSize * gridSize) {
+      displayNoMatchMessage();
+      gameInProgress = false;
     }
   };
 
-  // Save the updated user profile back to localStorage
-  const saveUserProfile = () => {
-    const userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
-    const userIndex = parseInt(localStorage.getItem("currentUserIndex"), 10);
+  // Add resultDisplay element reference
+  const resultDisplay = document.getElementById("resultDisplay");
 
-    if (!isNaN(userIndex) && userProfiles[userIndex]) {
-      userProfiles[userIndex] = currentUserProfile;
-      localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
-    } else {
-      console.error("Error: Unable to save user profile. User not found."); // Debug log
-    }
+  // Update displayWinMessage function
+  const displayWinMessage = (amountWon) => {
+    resultDisplay.style.display = 'block'; // Ensure visibility
+    resultDisplay.innerHTML = `
+      <div style="font-size: 1.2em; margin-bottom: 10px;">
+        Congratulations! You won ${formatMoney(amountWon)}!
+      </div>
+      <button class="restart-button" onclick="location.reload()">Play Again</button>
+    `;
+    resultDisplay.className = 'result-display show win';
   };
 
-  // Function to move the coin to follow the mouse or touch
-  const moveCoin = (event) => {
-    event.preventDefault(); // Prevents touch from scrolling when interacting with the game
-
-    // Get the coordinates from mouse or touch events
-    const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-    const clientY = event.clientY || (event.touches && event.touches[0].clientY);
-
-    if (clientX !== undefined && clientY !== undefined) {
-      // Set the position of the coin element
-      coin.style.left = `${clientX - (coin.offsetWidth / 2) + window.scrollX}px`;
-      coin.style.top = `${clientY - (coin.offsetHeight / 2) + window.scrollY}px`;
-    }
+  // Update displayNoMatchMessage function
+  const displayNoMatchMessage = () => {
+    resultDisplay.style.display = 'block'; // Ensure visibility
+    resultDisplay.innerHTML = `
+      <div style="font-size: 1.2em; margin-bottom: 10px;">
+        No Match! Better luck next time.
+      </div>
+      <button class="restart-button" onclick="location.reload()">Play Again</button>
+    `;
+    resultDisplay.className = 'result-display show lose';
   };
 
-  // Event listeners for mouse and touch movements
-  window.addEventListener("mousemove", moveCoin);
-  window.addEventListener("touchmove", moveCoin, { passive: false });
-
-  // Function to create a cell in the grid
-  const createCell = (row, col) => {
-    const cell = document.createElement("div");
-    cell.classList.add("scratch-win__cell");
-
-    const emoji = document.createElement("div");
-    emoji.classList.add("scratch-win__emoji");
-
-    // Assign the emoji from the grid array
-    let cellEmoji = grid[row][col].emoji;
-    emoji.textContent = cellEmoji;
-
-    cell.appendChild(emoji);
-
-    const canvas = document.createElement("canvas");
-    canvas.classList.add("scratch-win__foreground");
-    canvas.width = 300; // Increased for better resolution on high-density screens
-    canvas.height = 300;
-    cell.appendChild(canvas);
-
-    // Adjust canvas for high-DPI screens
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    const scale = window.devicePixelRatio || 1;
-    canvas.width = 100 * scale;
-    canvas.height = 100 * scale;
-    ctx.scale(scale, scale);
-
-    // Create gradient overlay
-    const gradient = ctx.createLinearGradient(0, 0, 100, 100);
-    gradient.addColorStop(0, "#d4af37");
-    gradient.addColorStop(1, "#a67c00");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 100, 100);
-
-    let fullyScratched = false; // Prevent multiple counting for revealedCount
-
-    // Scratch handler
-    const scratch = (event) => {
-      if (!gameInProgress) {
-        console.log("Game is not in progress. Cannot scratch."); // Debug log
-        return; // Prevent scratching if the game is not in progress
-      }
-
-      if (hasWon) return; // Prevent further scratching after win
-
-      const rect = canvas.getBoundingClientRect();
-      const clientX = event.clientX || (event.touches && event.touches[0].clientX);
-      const clientY = event.clientY || (event.touches && event.touches[0].clientY);
-
-      if (clientX === undefined || clientY === undefined) return;
-
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      const scratchRadius = 15; // Scratch radius
-      ctx.globalCompositeOperation = 'destination-out'; // Makes scratched areas transparent
-      ctx.beginPath();
-      ctx.arc(x, y, scratchRadius, 0, 2 * Math.PI);
-      ctx.fill();
-
-      const transparency = calculateTransparency(ctx);
-      if (transparency > 0.5 && !fullyScratched) { // Fully reveal after 50% scratched
-        fullyScratched = true;
-        revealedCount++;
-        canvas.remove(); // Remove the canvas to reveal the emoji
-        cell.classList.add("scratch-win--scratched");
-        scratched[row][col] = true;
-
-        const amountWon = checkWin();
-        if (amountWon > 0 && !hasWonPopupShown) {
-          hasWonPopupShown = true;
-          hasWon = true;
-          currentUserProfile.totalBalance += amountWon; // Add the winning amount to the balance
-          saveUserProfile(); // Save the updated balance
-          updateUserBalanceDisplay(); // Update the balance display in the UI
-          displayWinMessage(amountWon);
-          gameInProgress = false; // End the game
-        } else if (revealedCount === gridSize * gridSize) {
-          displayNoMatchMessage();
-          gameInProgress = false; // End the game
-        }
-      }
-    };
-
-    const calculateTransparency = (ctx) => {
-      const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data;
-      let transparentPixels = 0;
-
-      for (let i = 3; i < imageData.length; i += 4) {
-        if (imageData[i] === 0) transparentPixels++;
-      }
-
-      return transparentPixels / (ctx.canvas.width * ctx.canvas.height);
-    };
-
-    let isScratching = false;
-
-    const startScratch = (event) => {
-      event.preventDefault();
-      isScratching = true;
-      scratch(event);
-    };
-
-    const stopScratch = () => {
-      isScratching = false;
-    };
-
-    const scratchHandler = (event) => {
-      if (!isScratching) return;
-      scratch(event);
-    };
-
-    canvas.addEventListener("mousedown", startScratch);
-    canvas.addEventListener("touchstart", startScratch, { passive: false });
-    window.addEventListener("mouseup", stopScratch);
-    window.addEventListener("touchend", stopScratch, { passive: false });
-    canvas.addEventListener("mousemove", scratchHandler);
-    canvas.addEventListener("touchmove", scratchHandler);
-
-    return cell;
-  };
-
-  // Function to initialize the grid with at least one winning combination
-// Function to initialize the grid with a lower chance of having a winning combination
-const initializeGrid = () => {
-  emojiGrid.innerHTML = ""; // Clear the previous grid
-  grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
-  scratched = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
-
-  // Introduce a 30% chance of having a winning configuration
-  const shouldHaveWinningCombination = Math.random() < 0.3;
-
-  if (shouldHaveWinningCombination) {
-    // Generate a winning combination
-    const predefinedEmoji = emojiSlots[Math.floor(Math.random() * emojiSlots.length)];
-
-    const winType = Math.floor(Math.random() * 3); // 0: row, 1: column, 2: diagonal
-
-    if (winType === 0) {
-      const winRow = Math.floor(Math.random() * gridSize);
-      for (let col = 0; col < gridSize; col++) {
-        grid[winRow][col] = predefinedEmoji;
-      }
-    } else if (winType === 1) {
-      const winCol = Math.floor(Math.random() * gridSize);
-      for (let row = 0; row < gridSize; row++) {
-        grid[row][winCol] = predefinedEmoji;
-      }
-    } else {
-      for (let i = 0; i < gridSize; i++) {
-        grid[i][i] = predefinedEmoji;
-      }
-    }
-  }
-
-  // Fill the rest of the grid with random emojis
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      if (grid[row][col] === null) {
-        grid[row][col] = emojiSlots[Math.floor(Math.random() * emojiSlots.length)];
-      }
-      const cell = createCell(row, col);
-      emojiGrid.appendChild(cell);
-    }
-  }
-};
-
-
-  // Function to reset the game
+  // Update resetGame function
   const resetGame = () => {
     grid = [];
     scratched = [];
-    revealedCount = 0;
     hasWon = false;
-    hasPaid = false;
+    hasWonPopupShown = false;
+    revealedCount = 0;
+    gameInProgress = true;
+    resultDisplay.className = 'result-display'; // Reset result display
+    resultDisplay.textContent = ''; // Clear previous result
     initializeGrid();
   };
 
-  // Function to handle play button click
   playButton.addEventListener("click", () => {
-    if (gameInProgress) return; // Prevent starting a new game if one is in progress
+    if (gameInProgress) return;
 
     const playCost = 100;
     if (deductPlayCost(playCost)) {
-      playButton.style.display = 'none'; // Hide the play button once the game starts
-      detailsButton.style.display = 'none'; // Hide the details button once the game starts
-      hasPaid = true; // Mark that the user has paid to play
-      gameInProgress = true; // Mark that a game is in progress
-      resetGame(); // Reset the game and generate a new grid
+      playButton.style.display = 'none';
+      resetGame();
     }
   });
 
-  // Event listeners for modal buttons
   playAgainButton.addEventListener("click", () => {
-    if (gameInProgress) return; // Prevent play again if a game is in progress
     winModal.style.display = "none";
-    hasPaid = false; // Reset payment status for a new game
-    playButton.style.display = 'none'; // Hide play button during game reset
-    detailsButton.style.display = 'none'; // Hide details button during game reset
-    const playCost = 100;
-    if (deductPlayCost(playCost)) {
-      resetGame(); // Reset the game
-      gameInProgress = true; // Mark that a game is in progress
-      hasWonPopupShown = false; // Allow for a new game popup
-    }
+    gameInProgress = false;
+    playButton.style.display = 'block';
   });
 
   cancelButton.addEventListener("click", () => {
     winModal.style.display = "none";
-    hasWonPopupShown = false; // Allow for a new game popup
-    playButton.style.display = 'block'; // Show the play button
-    detailsButton.style.display = 'block'; // Show the details button
-    gameInProgress = false; // End the game
+    gameInProgress = false;
+    playButton.style.display = 'block';
   });
 
-  // Event listener for no match play again button
   noMatchPlayAgainButton.addEventListener("click", () => {
-    if (gameInProgress) return; // Prevent play again if a game is in progress
     noMatchModal.style.display = "none";
-    hasPaid = false; // Reset payment status for a new game
-    playButton.style.display = 'none'; // Hide play button during game reset
-    detailsButton.style.display = 'none'; // Hide details button during game reset
-    const playCost = 100;
-    if (deductPlayCost(playCost)) {
-      resetGame(); // Reset the game
-      gameInProgress = true; // Mark that a game is in progress
-      hasWonPopupShown = false; // Allow for a new game popup
-    }
+    gameInProgress = false;
+    playButton.style.display = 'block';
   });
 
-  // Event listener for no match cancel button
   noMatchCancelButton.addEventListener("click", () => {
     noMatchModal.style.display = "none";
-    playButton.style.display = 'block'; // Show the play button
-    detailsButton.style.display = 'block'; // Show the details button
-    gameInProgress = false; // End the game
+    gameInProgress = false;
+    playButton.style.display = 'block';
   });
 
-  // Function to show details modal
-  const showDetailsModal = () => {
-    emojiDetailsList.innerHTML = emojiSlots.map(slot => `<li>${slot.emoji}: ${formatMoney(slot.value)}</li>`).join('');
-    detailsModal.style.display = "flex";
-  };
-
-  // Event listener for details button
-  detailsButton.addEventListener("click", showDetailsModal);
-
-  // Event listener for closing details modal
-  closeDetailsButton.addEventListener("click", () => {
-    detailsModal.style.display = "none";
-  });
-
-  // Initialize the game
   initializeUserProfile();
   updateUserBalanceDisplay();
+  gameInProgress = false; // Ensure game is not in progress on load
   initializeGrid();
+
+  // Ensure there are no JavaScript errors affecting the page rendering
+  console.log('Scratch & Win page loaded successfully');
 });
+
+// Add these variable declarations at the beginning of your script
+let hasWon = false;
+let hasWonPopupShown = false;
+let revealedCount = 0;
+let gameInProgress = false;
+
+// When a bet is placed or game starts
+function startGame() {
+    const betAmount = getBetAmount(); // Implement this function to get the bet amount
+    currentUserProfile.totalBalance -= betAmount;
+    currentUserProfile.totalBets += betAmount;
+    updateBalance(userIndex, -betAmount); // Deduct bet
+    updateUserProfile();
+    
+    // ...existing game start logic...
+}
+
+// When the player wins
+function handleWin(reward) {
+    currentUserProfile.totalBalance += reward;
+    currentUserProfile.totalProfit += (reward - currentBet);
+    updateBalance(userIndex, reward); // Add winnings
+    updateProfit(userIndex, reward - currentBet); // Update profit
+    updateUserProfile();
+    
+    // ...existing win logic...
+}
+
+// When the player loses
+function handleLoss() {
+    currentUserProfile.totalProfit -= currentBet;
+    updateProfit(userIndex, -currentBet); // Update profit
+    updateUserProfile();
+    
+    // ...existing loss logic...
+}
+
+// Ensure these functions are called appropriately within game events
