@@ -454,16 +454,25 @@ function dealInitialCards() {
 
     displayHands();
 
-    // New blackjack check and handling
     if (calculateHandValue(playerHand) === 21) {
         resultDisplay.textContent = "Blackjack! You Win!";
         totalWins += 1;
-        totalProfit += currentBet * 1.5; // Add 1.5x profit
-        updateBalanceDisplay(currentBet * 2.5, true); // Add 2.5x total return (1.5x profit + original bet)
+        totalProfit += currentBet * 1.5; // Blackjack pays 1.5 times the bet
+        updateBalanceDisplay(currentBet * 2.5, true); // Add winnings to balance
         updateStatisticsDisplay();
         updateUserProfile();
         gameInProgress = false;
         currentBet = 0;
+
+        // Hide all other buttons
+        playButton.classList.add('d-none');
+        hitButton.classList.add('d-none');
+        standButton.classList.add('d-none');
+        clearBetButton.classList.add('d-none');
+        document.getElementById('toggle-stats-button').classList.add('d-none');
+
+        // Show restart button
+        restartButton.classList.remove('d-none');
         return;
     }
 
@@ -672,4 +681,3 @@ function canPlaceBet(value) {
     }
     return true;
 }
-
