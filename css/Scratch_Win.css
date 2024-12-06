@@ -1,334 +1,546 @@
-/* General Styling for a Modern Background */
-body {
-  font-family: "Poppins", Arial, sans-serif;
-  background: linear-gradient(135deg, #121212, #1e1e2e); /* Modern gradient background */
-  color: #fff;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  height: 100vh;
+/* Color Scheme */
+:root {
+  --primary-color: #7c3aed;
+  --accent-color: #60a5fa;
+  --secondary-color: #fbbf24;
+  --dark-bg: #1f2937;
+  --card-bg: #273548;
+  --text-light: #f3f4f6;
+  --text-muted: #9ca3af;
+  --gradient-start: #1e293b;
+  --gradient-end: #334155;
+  --transition: all 0.3s ease-in-out;
 }
 
-/* Navbar Styling */
+/* Body and HTML */
+body, html {
+  /* ...existing code... */
+  font-family: 'Inter', sans-serif;
+  padding-top: 76px; /* Account for navbar */
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+  color: var(--text-light);
+  min-height: 100%;
+}
+
+/* Navbar */
 .navbar {
-  background-color: #222; /* Dark background */
-  padding: 10px 20px;
   position: fixed;
-  width: 100%;
   top: 0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: space-between;
-}
-
-.nav-logo {
-  font-size: 1.7rem;
-  color: #ffd700;
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.nav-logo:hover {
-  color: #ffeb3b;
-}
-
-.navbar__links {
-  list-style: none;
-  display: flex;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-}
-
-.navbar__link {
-  margin-left: 20px;
-  text-decoration: none;
-  color: #fff;
-  font-weight: bold;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.navbar__link:hover {
-  background-color: #444;
-  color: #ffd700;
-}
-
-.navbar__balance {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #ffd700;
-  margin-left: 20px;
-}
-
-/* Button Styling */
-button {
+  background: rgba(31, 41, 55, 0.95);
+  color: white;
   padding: 10px 20px;
-  background: #3cb371;
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: top 0.3s;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-button:hover {
-  background-color: #2e8b57;
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+/* ...existing code... */
+
+/* Navbar styles */
+.navbar {
+    background: rgba(31, 41, 55, 0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
 }
 
-/* Game Area Styling */
-.main-content {
-  margin-top: 100px; /* Account for fixed navbar */
+.navbar-nav .nav-link {
+    color: var(--secondary-color) !important; /* Force yellow color */
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #FFC300 !important; /* Brighter yellow on hover */
+    opacity: 0.9;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--text-light) !important; /* Force white color */
+}
+
+/* Remove the old navbar styles */
+/* Remove .navbar.hidden, .navbar .logo, .navbar ul, .navbar ul li, .navbar ul li a */
+
+/* Hero Section */
+.hero-section {
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+  color: var(--text-light);
+}
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--secondary-color) !important;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.3) !important;
+}
+
+.hero-section p {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  color: var(--text-light);
+}
+
+/* Scratch Game Grid */
+.scratch-win {
+  display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 80px);
+  align-items: center;
+  max-width: 400px;
+  margin: 0 auto;
   padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.scratch-win__title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #ffd700;
-  margin-bottom: 20px;
-}
-
-.scratch-win__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 100px);
-  gap: 15px;
-}
-
+/* Game Cells */
 .scratch-win__cell {
   position: relative;
-  width: 100px;
-  height: 100px;
-  background: #d4af37;
-  border-radius: 12px;
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  margin: 0;
+}
+
+.scratch-win__cell:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
 .scratch-win__emoji {
-  display: none;
-  font-size: 2rem;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.scratch-win--scratched .scratch-win__emoji {
+  font-size: 2.5rem;
+  color: var(--text-light);
   display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 .scratch-win__foreground {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
 }
 
-/* Coin Styling */
-#coin {
-  position: fixed;
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, #ffd700 40%, #b8860b 100%);
-  border-radius: 50%;
-  pointer-events: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+/* Content Section */
+.content-section {
+  padding: 4rem 1rem;
+  text-align: center;
+  background: var(--card-bg);
+  color: var(--text-light);
 }
 
-/* Play Button Styling */
-#playButton {
-  margin-top: 30px;
-  background: #ffd700;
-  color: #333;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+/* Footer */
+.site-footer {
+  padding: 1rem 0;
+  text-align: center;
+  background: var(--dark-bg);
+  color: var(--text-muted);
 }
 
-#playButton:hover {
-  background: #ffeb3b;
-  transform: translateY(-3px);
-}
-
-/* Details Button Styling */
-#detailsButton {
-  margin-top: 30px;
-  margin-left: 10px; /* Space between play and details button */
-  background: #1e90ff;
-  color: #fff;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-#detailsButton:hover {
-  background: #1c86ee;
-  transform: translateY(-3px);
-}
-
-/* Responsive Design */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .nav-logo {
-    margin-bottom: 10px;
-  }
-
-  .navbar__links {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .navbar__link {
-    margin-bottom: 10px;
-  }
-
-  .scratch-win__grid {
-    grid-template-columns: repeat(3, 80px);
-    gap: 10px;
+  .scratch-win {
+    max-width: 320px;
+    padding: 15px;
   }
 
   .scratch-win__cell {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
   }
 
-  #coin {
-    width: 30px;
-    height: 30px;
+  .hero-section h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
   }
 }
 
-/* Win Modal Styling */
+/* ...existing code... */
+
+/* Styles for the main content container */
+.main-content {
+  padding: 2rem 0;
+}
+
+/* Styles for balance display */
+.balance-display {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Styles for scratch-win buttons */
+.scratch-win__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.scratch-win__buttons .btn {
+  min-width: 120px;
+}
+
+/* Styles for modals */
 .modal {
-  display: none; /* Hidden by default */
   position: fixed;
-  z-index: 1000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  justify-content: center;
+  display: none;
   align-items: center;
-  backdrop-filter: blur(5px);
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal[style*="flex"] {
+  opacity: 1;
 }
 
 .modal-content {
-  background-color: #333;
-  color: #fff;
-  border-radius: 15px;
-  padding: 30px;
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 8px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-  width: 90%;
-  max-width: 500px;
-  margin: auto;
-  position: relative;
-  animation: slide-in 0.5s ease;
-}
-
-.modal p {
-  font-size: 1.375rem;
-  margin-bottom: 20px;
-  line-height: 1.6;
-  color: #ffd700;
-  font-weight: 600;
+  color: var(--text-light);
+  max-width: 90%;
+  margin: 0 1rem;
 }
 
 .close-button {
   position: absolute;
   top: 15px;
   right: 20px;
-  font-size: 1.75rem;
-  font-weight: bold;
+  font-size: 2rem;
+  color: var(--text-light);
   cursor: pointer;
-  color: #ffd700;
-  transition: color 0.3s ease;
-}
-
-.close-button:hover {
-  color: #ffeb3b;
-}
-
-/* Modal Buttons */
-.modal-button,
-.modal-button-secondary {
-  padding: 12px 24px;
-  margin-top: 15px;
-  cursor: pointer;
-  border: none;
-  border-radius: 25px;
-  font-size: 1.125rem;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.3s, transform 0.3s;
 }
 
 .modal-button {
-  background-color: #3cb371;
-  color: #fff;
-}
-
-.modal-button:hover {
-  background-color: #2e8b57;
-  transform: translateY(-3px);
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  background: var(--accent-color);
+  border: none;
+  color: var(--text-light);
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 120px;
 }
 
 .modal-button-secondary {
-  background-color: #444;
-  color: #fff;
-  border: 1px solid #666;
-  margin-left: 10px;
+  background: var(--primary-color);
 }
 
-.modal-button-secondary:hover {
-  background-color: #666;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .scratch-win__cell {
+    width: 70px;
+    height: 70px;
+  }
+
+  .scratch-win__emoji {
+    font-size: 1.75rem;
+  }
+
+  .balance-display {
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .modal-button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
 }
 
-/* Details Modal Styling */
-#details-modal .modal-content {
-  max-width: 450px;
+/* Additional styles to fix layout issues */
+.scratch-win__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  justify-items: center;
+  margin-bottom: 20px;
+  max-width: 320px;
+  margin: 0 auto 20px;
+  place-items: center; /* Centers grid items both horizontally and vertically */
+  place-content: center; /* Centers the entire grid in its container */
 }
 
-.emoji-details-list {
-  list-style-type: none;
-  padding: 0;
+/* ...existing code... */
+
+/* Update play button styling */
+.scratch-win__play {
+  background: var(--secondary-color);
+  border: none;
+  color: var(--dark-bg);
+  padding: 8px 24px;
+  font-size: 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-weight: 600;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.emoji-details-list li {
+.scratch-win__play:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+/* ...existing code... */
+
+/* Confetti styles */
+.confetti {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1999;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(251, 191, 36, 0.2) 100%
+  );
+  animation: confettiFade 3s ease-in-out;
+}
+
+@keyframes confettiFade {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ...existing code... */
+
+/* Result display styling */
+.result-display {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(20px);
+  width: 90%;
+  max-width: 300px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.result-display.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) translateY(0);
+}
+
+.result-display.win {
+  background: rgba(16, 185, 129, 0.95);
+}
+
+.result-display.lose {
+  background: rgba(239, 68, 68, 0.95);
+}
+
+.restart-button {
+  background: white;
+  color: black;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: bold;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.restart-button:active {
+  transform: scale(0.95);
+}
+
+/* ...existing code... */
+
+/* Start button styling */
+.start-button {
+  background: var(--secondary-color);
+  color: var(--dark-bg);
+  border: none;
+  padding: 12px 30px;
   font-size: 1.2rem;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #ffd700;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
 }
 
-.mobile-menu-button {
-  margin-right: 25;
+.start-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+  background: #f7b21c;
 }
+
+.start-button:active {
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .start-button {
+    padding: 10px 25px;
+    font-size: 1rem;
+  }
+}
+
+/* ...existing code... */
+
+/* Updated Hero Section Styles */
+.hero-section {
+  min-height: 100vh;
+  padding: 4rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.game-instructions {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  backdrop-filter: blur(10px);
+}
+
+.game-instructions h2 {
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.instruction-list {
+  text-align: left;
+  padding-left: 2rem;
+  margin: 0;
+}
+
+.instruction-list li {
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+.rewards-table {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  backdrop-filter: blur(10px);
+}
+
+.rewards-table h2 {
+  color: var(--secondary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+}
+
+.reward-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.reward-item:hover {
+  transform: translateY(-5px);
+}
+
+.reward-item .emoji {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.reward-item .amount {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rewards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .game-instructions,
+  .rewards-table {
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+  }
+
+  .instruction-list {
+    padding-left: 1.5rem;
+  }
+}
+
+/* ...existing code... */
+
+/* ...existing code... */

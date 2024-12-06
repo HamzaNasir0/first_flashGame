@@ -1,0 +1,71 @@
+/* Color Scheme */
+:root {
+    --primary-color: #7c3aed;
+    --accent-color: #60a5fa;
+    --secondary-color: #fbbf24;
+    --dark-bg: #1f2937;
+    --card-bg: #273548;
+    --text-light: #f3f4f6;
+    --text-muted: #9ca3af;
+    --gradient-start: #1e293b;
+    --gradient-end: #334155;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Navbar */
+.navbar {
+    position: fixed;
+    top: 0;
+    background: rgba(31, 41, 55, 0.95);
+    color: white;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: top 0.3s;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar.hidden {
+    top: -100px;
+    transition: top 0.3s ease-in-out;
+}
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    padding: 0;
+}
+
+.navbar ul li {
+    margin-left: 20px;
+}
+
+.navbar ul li a {
+    color: var(--secondary-color);
+    transition: color 0.3s;
+}
+
+.navbar ul li a:hover {
+    color: #FFC300;
+}
+
+.cta-button {
+    color: white;
+    text-decoration: none;
+    padding: 10px 25px;
+    border-radius: 25px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+    color: white;
+    text-decoration: none;
+}
