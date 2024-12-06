@@ -1,83 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Suite - Rocket Crash</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <link rel="stylesheet" href="./css/rocket-crash.css">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Cosmic Card Club - Rocket Crash</title>
+    
+    <!-- External CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="./css/rocket-crash.css" rel="stylesheet">
+    
+    <!-- External JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="welcome.html" class="nav-logo">Game Suite</a>
-            <ul class="nav-menu" id="nav-menu">
-                <li class="nav-item"><a href="blackjack.html" class="nav-link">Blackjack</a></li>
-                <li class="nav-item"><a href="Scratch_Win.html" class="nav-link">Scratch</a></li>
-                <li class="nav-item"><a href="findtheneedle.html" class="nav-link">Joker</a></li>
-                <li class="nav-item"><a href="welcome.html" class="nav-link">User</a></li>
-            </ul>
-            <div class="nav-toggle" id="mobile-menu" aria-expanded="false">
-                <span class="burger"></span>
-                <span class="burger"></span>
-                <span class="burger"></span>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-glass">
+            <div class="container">
+                <a class="navbar-brand" href="#">Cosmic Card Club</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="blackjack.html">Black Jack</a></li>
+                        <li class="nav-item"><a class="nav-link" href="Scratch_Win.html">Scratch Card</a></li>
+                        <li class="nav-item"><a class="nav-link" href="findtheneedle.html">Joker</a></li>
+                        <li class="nav-item"><a class="nav-link" href="welcome.html">User</a></li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <main class="container mt-5 justify-content-center">
-        <div class="rocket-crash-container">
-            <!-- Rocket Crash Game -->
-            <div class="rocket-crash-game me-4"> <!-- Add margin to the right -->
-                <h1>Rocket Crash Game</h1>
-                <!-- Display Current Balance -->
-                <div id="current-balance" class="current-balance-text">Current Balance: <span class="money">£1,567.50</span></div>
-                <!-- Graph Container Wrapper -->
-                <div id="graph-container-wrapper" class="graph-container-wrapper">
-                    <div id="graph-container">
-                        <canvas id="multiplier-graph" width="732" height="410" style="display: block; box-sizing: border-box; height: 410px; width: 732px;"></canvas>
-                        <div id="past-crashes" class="past-crashes">
-                            <span>Past Crashes: </span>
-                            <span id="past-crash-list"></span>
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="container text-center">
+                <h1 class="hero-title text-gradient">Rocket Crash</h1>
+                <p class="hero-subtitle">Place your bets and cash out before the rocket crashes!</p>
+                <div class="hero-cta">
+                    <button class="cta-button" onclick="location.href='#content'">Start Playing</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="content" class="game-section">
+            <div class="container">
+                <div class="game-container">
+                    <!-- Game Display Area -->
+                    <div class="game-display">
+                        <div id="graph-container" class="graph-wrapper">
+                            <canvas id="multiplier-graph" aria-label="Game progress graph"></canvas>
+                            <div class="game-overlay">
+                                <p id="multiplier" class="multiplier-text" aria-live="polite">0.00x</p>
+                            </div>
                         </div>
-                        <!-- Multiplier Display inside Graph Container -->
-                        <p id="multiplier" class="multiplier-text">0.00x</p>
+                        <div class="past-crashes">
+                            <span>Past Crashes: </span>
+                            <span id="past-crash-list" aria-live="polite"></span>
+                        </div>
+                    </div>
+
+                    <!-- Game Controls Area -->
+                    <div class="game-controls">
+                        <div class="balance-display">
+                            <p id="current-balance" class="balance-text">Current Balance: <span class="money">£1000.00</span></p>
+                        </div>
+                        <div class="controls-grid">
+                            <div class="bet-row">
+                                <input type="number" id="bet-amount" class="bet-input" placeholder="Enter Bet Amount" aria-label="Bet amount">
+                                <button id="place-bet-button" class="game-button primary">Start</button>
+                            </div>
+                            <button id="bet-100-button" class="game-button">Bet £100</button>
+                            <button id="bet-1000-button" class="game-button">All In</button>
+                            <button id="cash-out-button" class="game-button success d-none">Cash Out</button>
+                            <button id="watch-only-button" class="game-button secondary">Watch Only</button>
+                            <button id="game-stats-button" class="game-button secondary">Game Stats</button>
+                            <button id="return-button" class="game-button secondary d-none">Return</button>
+                            
+                            <!-- Game Stats Display -->
+                            <div id="game-stats" class="game-stats d-none">
+                                <p>Total Profit Made: <span id="total-profit">£0.00</span></p>
+                                <p>Total Money Lost: <span id="total-lost">£0.00</span></p>
+                                <p>Total Bet Placed: <span id="total-bet">£0.00</span></p>
+                                <p>Highest Crash Out: <span id="highest-crash">0.00x</span></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <!-- Input and Buttons for Bets and Actions -->
-                <div class="button-group">
-                    <button id="bet-100-button" class="btn btn-primary mb-2">Bet £100</button>
-                    <input type="number" id="bet-amount" class="form-control mb-2" placeholder="Enter Bet Amount">
-                    <button id="place-bet-button" class="btn btn-success mb-2">Place Bet</button>
-                    <button id="bet-1000-button" class="btn btn-primary mb-2">All In</button>
-                    <button id="watch-only-button" class="btn btn-danger mb-2">Watch Rocket</button>
-                    <button id="skip-to-crash-button" class="btn btn-info mb-2" disabled="">Skip to Crash</button>
-                    <button id="cash-out-button" class="btn btn-warning mb-2" style="display: none;">Cash Out</button>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer" class="site-footer">
+        <div class="container">
+            <p>&copy; 2024 Cosmic Card Club. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Message Modal -->
+    <div class="modal fade custom-modal" 
+         id="messageModal" 
+         tabindex="-1" 
+         role="dialog"
+         aria-labelledby="messageModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                    <button type="button" 
+                            class="btn-close" 
+                            data-bs-dismiss="modal" 
+                            aria-label="Close"></button>
                 </div>
-                <!-- Error Message Display -->
-                <div id="error-message" class="alert alert-danger" style="display: none;"></div>
-                <!-- Result and Profit Display -->
-                <div id="result"></div>
-                <div id="crash-point" class="crash-point-text toggle-info"></div>
-                <div id="rocket-profit" class="toggle-info">Total Profit: £1,067.50</div>
-                <div id="highest-cash-out" class="toggle-info">Highest Cash Out: Bet £890.00, Profit £667.50, at x1.75</div>
-                <!-- Toggle Info Button -->
-                <button id="toggle-info-button" class="btn btn-secondary mt-3 mx-auto d-block">Show More Info</button>
+                <div class="modal-body" id="messageModalBody"></div>
+                <div class="modal-footer">
+                    <button type="button" 
+                            class="btn btn-secondary" 
+                            data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
-    </main>
-    
+    </div>
 
-    <!-- JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Corrected path to userProfile.js -->
+    <script src="./js/userProfile.js"></script>
     <script src="./js/rocket-crash.js"></script>
 </body>
-
 </html>

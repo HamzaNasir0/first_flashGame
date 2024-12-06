@@ -3,154 +3,114 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ensures responsive scaling -->
-  <title>3x3 Scratch & Win</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scratch & Win</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Include custom styles -->
   <link rel="stylesheet" href="./css/Scratch_Win.css">
-  <!-- Optional: Include Canvas Confetti Library for confetti effects -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-  <style>
-    /* Navbar Styles */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      background-color: #333;
-      color: white;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .navbar__logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    .navbar__links {
-      display: flex;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .navbar__link {
-      margin: 0 10px;
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-      transition: color 0.3s;
-    }
-
-    .navbar__link:hover {
-      color: #ffd700;
-    }
-
-    /* Hamburger Menu Styling */
-    .navbar__toggle {
-      display: none;
-      font-size: 2rem;
-      cursor: pointer;
-      color: white;
-      background: none;
-      border: none;
-    }
-
-    .main-content {
-      margin-top: 80px;
-      /* Account for fixed navbar */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: calc(100vh - 80px);
-      padding: 20px;
-    }
-
-    /* Balance Styling under Scratch & Win title */
-    .balance-display {
-      font-size: 1.3rem;
-      color: #f7d35e;
-      font-weight: bold;
-      margin-top: 10px;
-      margin-bottom: 20px;
-    }
-
-    /* Hide cursor when hovering over the coin element */
-    #coin {
-      cursor: none;
-    }
-
-    /* Hide cursor when hovering over the scratch grid (optional) */
-    #emojiGrid {
-      cursor: none;
-    }
-
-    /* Mobile Navbar Styles */
-    @media (max-width: 768px) {
-      .navbar__links {
-        display: none;
-        flex-direction: column;
-        background-color: rgba(51, 51, 51, 0.95);
-        position: absolute;
-        top: 100%;
-        right: 0;
-        width: 100%;
-        text-align: center;
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
-
-      .navbar__links.show {
-        display: flex;
-      }
-
-      .navbar__link {
-        margin: 10px 0;
-      }
-
-      .navbar__toggle {
-        display: block;
-      }
-    }
-  </style>
+  <!-- Include Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="navbar__logo">Game Suite</div>
-    <button id="mobile-menu-button" class="navbar__toggle">&#9776;</button>
-    <ul class="navbar__links">
-      <li><a href="blackjack.html" class="navbar__link">Blackjack</a></li>
-      <li><a href="rocket-crash.html" class="navbar__link">Rocket Crash</a></li>
-      <li class="nav-item"><a href="findtheneedle.html" class="nav-link">Joker</a></li>
-      <li><a href="welcome.html" class="navbar__link">User</a></li>
-    </ul>
-  </nav>
-
-  <!-- Main Content -->
-  <div class="main-content">
-    <div id="scratch-win" class="scratch-win">
-      <div class="scratch-win__title">Scratch & Win</div>
-      <!-- Moved balance display here -->
-      <div class="balance-display">Balance: £0.00</div>
-      <div id="emojiGrid" class="scratch-win__grid"></div>
-      <div class="scratch-win__buttons">
-        <!-- Updated Play button to include cost -->
-        <button id="playButton" class="scratch-win__play">Play (£100)</button>
-        <!-- New Details button to show all emoji and their values -->
-        <button id="detailsButton" class="scratch-win__details">Details</button>
+  <!-- Navbar -->
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">Cosmic Card Club</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="blackjack.html">Black Jack</a></li>
+            <li class="nav-item"><a class="nav-link" href="rocket-crash.html">Rock Crash</a></li>
+            <li class="nav-item"><a class="nav-link" href="findtheneedle.html">Joker</a></li>
+            <li class="nav-item"><a class="nav-link" href="welcome.html">User</a></li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </nav>
+  </header>
 
-    <!-- Coin Element -->
-    <div id="coin" class="scratch-win__coin">
-      <div class="scratch-win__coin-side"></div>
-      <div class="scratch-win__coin-base"></div>
-    </div>
+  <!-- Hero Section -->
+  <main>
+    <section id="hero" class="hero-section">
+      <div class="container text-center">
+        <h1>Scratch &amp; Win</h1>
+        <p class="lead mb-4">Try your luck in the Scratch &amp; Win game!</p>
+        
+        <div class="game-instructions mb-4">
+          <h2>How to Play</h2>
+          <ol class="instruction-list">
+            <li>Click 'Play' to start a new game (costs £100)</li>
+            <li>Scratch the panels to reveal emojis</li>
+            <li>Match 3 identical emojis in a row, column, or diagonal to win!</li>
+          </ol>
+        </div>
+
+        <div class="rewards-table mb-4">
+          <h2>Winning Combinations</h2>
+          <div class="rewards-grid">
+            <div class="reward-item">
+              <span class="emoji">🍉</span>
+              <span class="amount">£1000</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍑</span>
+              <span class="amount">£500</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍓</span>
+              <span class="amount">£375</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍍</span>
+              <span class="amount">£250</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍒</span>
+              <span class="amount">£125</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍇</span>
+              <span class="amount">£75</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍌</span>
+              <span class="amount">£50</span>
+            </div>
+            <div class="reward-item">
+              <span class="emoji">🍎</span>
+              <span class="amount">£25</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="start-button" onclick="location.href='#game'">Start Playing</button>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <section id="game" class="main-content">
+      <div class="container text-center">
+        <div id="scratch-win" class="scratch-win">
+          <!-- Removed title heading -->
+          <div class="balance-display">Balance: £0.00</div>
+          <div id="emojiGrid" class="scratch-win__grid"></div>
+          <!-- Add result display -->
+          <div id="resultDisplay" class="result-display"></div>
+          <div class="scratch-win__buttons">
+            <!-- Updated Play button to include cost -->
+            <button id="playButton" class="scratch-win__play btn btn-primary">Play (£100)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Removed coin element -->
 
     <!-- Confetti Element -->
     <div id="confetti" class="confetti"></div>
@@ -175,27 +135,25 @@
         </ul>
       </div>
     </div>
-  </div>
 
-  <!-- Include the JavaScript file -->
-  <script>
-    // JavaScript to handle the mobile menu toggle
-    document.addEventListener("DOMContentLoaded", () => {
-      const mobileMenuButton = document.getElementById("mobile-menu-button");
-      const navbarLinks = document.querySelector(".navbar__links");
+    <!-- Content Section -->
+    <section id="content" class="content-section">
+      <div class="container">
+        <!-- ...additional content if needed... -->
+      </div>
+    </section>
+  </main>
 
-      mobileMenuButton.addEventListener("click", () => {
-        navbarLinks.classList.toggle("show");
-      });
+  <!-- Footer -->
+  <footer id="footer" class="site-footer">
+    <div class="container text-center">
+      <p>&copy; 2024 Cosmic Card Club. All rights reserved.</p>
+    </div>
+  </footer>
 
-      // Close mobile menu when clicking outside of it
-      document.addEventListener("click", (e) => {
-        if (!navbarLinks.contains(e.target) && !mobileMenuButton.contains(e.target)) {
-          navbarLinks.classList.remove("show");
-        }
-      });
-    });
-  </script>
+  <!-- Include scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Include the main game JavaScript -->
   <script src="./js/Scratch_Win.js"></script>
 </body>
 

@@ -2,9 +2,167 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=user-auth.html">
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav" role="navigation" aria-label="Main Navigation">
+            <div class="container">
+                <a class="navbar-brand" href="#hero">Cosmic Card Club</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#games">Games</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#testimonials">Reviews</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="container text-center">
+                <h1>
+                    <a href="" class="typewrite" data-period="2000" data-type='[ "Cosmic Card Club" ]'>
+                        <span class="wrap"></span>
+                    </a>
+                </h1>
+                <p class="lead mb-4">Where the thrill of card games meets the magic of the cosmos. Play among the stars and win big!</p>
+                <a href="user-auth.html" class="cta-button">
+                    Start Playing <i class="fas fa-play-circle ms-2"></i>
+                </a>
+            </div>
+            <div class="hero-overlay"></div>
+        </section>
+
+        <div id="loading-spinner" class="loading-spinner"></div>
+
+        <section id="games" class="games-section">
+            <div class="container">
+                <h2 class="section-title">Our Games</h2>
+                <div class="row">
+                    <div class="col-12 grid-item">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-gamepad fa-3x"></i> <!-- Gaming controller icon -->
+                        </div>
+                        <div class="content">
+                            <h2>Welcome Page</h2>
+                            <p>Step into a world of exciting games and endless entertainment possibilities.</p>
+                            <a href="welcome.html">Enter Now <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-12 grid-item">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-gamepad fa-3x"></i> <!-- Gaming controller icon -->
+                        </div>
+                        <div class="content">
+                            <h2>Scratch Win</h2>
+                            <p>Test your luck with our engaging scratch card game.</p>
+                            <a href="Scratch_Win.html">Play Now <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-12 grid-item">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-gamepad fa-3x"></i> <!-- Gaming controller icon -->
+                        </div>
+                        <div class="content">
+                            <h2>Rocket Crash</h2>
+                            <p>Experience the thrill of our fast-paced rocket game.</p>
+                            <a href="rocket-crash.html">Play Now <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-12 grid-item">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-gamepad fa-3x"></i> <!-- Gaming controller icon -->
+                        </div>
+                        <div class="content">
+                            <h2>Find the Joker</h2>
+                            <p>Put your observation skills to the test in this unique challenge.</p>
+                            <a href="findtheneedle.html">Play Now <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-12 grid-item">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-gamepad fa-3x"></i> <!-- Gaming controller icon -->
+                        </div>
+                        <div class="content">
+                            <h2>Blackjack</h2>
+                            <p>Play the classic card game with a modern twist.</p>
+                            <a href="blackjack.html">Play Now <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonials-section">
+            <div class="container">
+                <h2 class="section-title">Player Reviews</h2>
+                <div class="testimonials-slider">
+                    <div class="testimonial">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-star fa-3x"></i>
+                        </div>
+                        <div class="content">
+                            <h3>Amazing Experience</h3>
+                            <p>This website is amazing! I found everything I needed and more.</p>
+                            <span class="reviewer">- John D.</span>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-thumbs-up fa-3x"></i>
+                        </div>
+                        <div class="content">
+                            <h3>User Friendly</h3>
+                            <p>The games are so much fun and the interface is very user-friendly.</p>
+                            <span class="reviewer">- Sarah M.</span>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-heart fa-3x"></i>
+                        </div>
+                        <div class="content">
+                            <h3>Highly Recommended</h3>
+                            <p>I love the design and the features. Highly recommended!</p>
+                            <span class="reviewer">- Mike R.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonials-nav">
+                    <button class="prev">←</button>
+                    <button class="next">→</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2024 Gaming Portal. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/script.js"></script>
 </body>
 </html>
