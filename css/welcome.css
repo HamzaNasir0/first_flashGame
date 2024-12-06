@@ -384,3 +384,52 @@ spin-button:hover {
         margin: 5px 0;
     }
 }
+
+/* Redeem Code Modal Specific Styles */
+#redeem-modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+#redeem-modal .modal-content {
+    background: linear-gradient(145deg, var(--gradient-start), var(--gradient-end));
+    border-radius: 15px;
+    padding: 25px;
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+#redeem-modal input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+#redeem-modal h2 {
+    color: var(--accent-color);
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+#redeem-message {
+    text-align: center;
+    font-weight: bold;
+    display: none;
+}

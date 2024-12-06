@@ -373,4 +373,49 @@ document.addEventListener('DOMContentLoaded', () => {
             drawWheel();
         }
     });
+
+    // Add the Redeem Code Button functionality
+    const redeemModal = document.getElementById('redeem-modal');
+    const closeRedeemModalButton = document.getElementById('close-redeem-modal');
+    const redeemCodeInput = document.getElementById('redeem-code-input');
+    const redeemCodeSubmit = document.getElementById('redeem-code-submit');
+    const redeemMessage = document.getElementById('redeem-message');
+    const redeemButton = document.getElementById('redeem-code-button');
+
+    // Show Redeem Modal
+    redeemButton.addEventListener('click', () => {
+        redeemModal.style.display = 'flex';
+        redeemCodeInput.value = '';
+        redeemMessage.style.display = 'none';
+    });
+
+    // Close Redeem Modal
+    closeRedeemModalButton.addEventListener('click', () => {
+        redeemModal.style.display = 'none';
+    });
+
+    // Submit Redeem Code
+    redeemCodeSubmit.addEventListener('click', () => {
+        const enteredCode = redeemCodeInput.value.trim();
+        if (enteredCode.toLowerCase() === 'hammy') {
+            currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) + 10000;
+            saveUserProfile();
+            updateUserStats();
+
+            redeemMessage.textContent = 'Congratulations! £10,000 has been added to your balance.';
+            redeemMessage.style.color = 'green';
+            redeemMessage.style.display = 'block';
+        } else {
+            redeemMessage.textContent = 'Invalid code. Please try again.';
+            redeemMessage.style.color = 'red';
+            redeemMessage.style.display = 'block';
+        }
+    });
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', (event) => {
+        if (event.target === redeemModal) {
+            redeemModal.style.display = 'none';
+        }
+    });
 });
