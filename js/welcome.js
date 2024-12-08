@@ -91,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUserProfile = userProfiles[userIndex];
 
     // Initialize Missing Properties
-    currentUserProfile.totalProfit = Math.max(0, parseFloat(currentUserProfile.totalProfit) || 0);
-    currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0;
+    currentUserProfile.totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+    currentUserProfile.totalLosses = parseFloat(currentUserProfile.totalLosses) || 0; // Ensure this stays as a running total
     currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
     currentUserProfile.totalBets = parseFloat(currentUserProfile.totalBets) || 0;
     currentUserProfile.totalWins = parseInt(currentUserProfile.totalWins, 10) || 0;
@@ -374,48 +374,64 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add the Redeem Code Button functionality
+    // Redeem Modal Elements
+    const redeemButton = document.getElementById('redeem-button');
     const redeemModal = document.getElementById('redeem-modal');
-    const closeRedeemModalButton = document.getElementById('close-redeem-modal');
+    const closeRedeemModal = document.getElementById('close-redeem-modal');
+    const submitRedeemCode = document.getElementById('submit-redeem-code');
+    const cancelRedeem = document.getElementById('cancel-redeem');
     const redeemCodeInput = document.getElementById('redeem-code-input');
-    const redeemCodeSubmit = document.getElementById('redeem-code-submit');
     const redeemMessage = document.getElementById('redeem-message');
-    const redeemButton = document.getElementById('redeem-code-button');
 
-    // Show Redeem Modal
+    // Store redeemed codes in localStorage
+    const redeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes')) || {};
+
     redeemButton.addEventListener('click', () => {
         redeemModal.style.display = 'flex';
         redeemCodeInput.value = '';
-        redeemMessage.style.display = 'none';
+        redeemMessage.textContent = '';
     });
 
-    // Close Redeem Modal
-    closeRedeemModalButton.addEventListener('click', () => {
+    closeRedeemModal.addEventListener('click', () => {
         redeemModal.style.display = 'none';
     });
 
-    // Submit Redeem Code
-    redeemCodeSubmit.addEventListener('click', () => {
-        const enteredCode = redeemCodeInput.value.trim();
-        if (enteredCode.toLowerCase() === 'hammy') {
-            currentUserProfile.totalBalance = parseFloat(currentUserProfile.totalBalance) + 10000;
+    cancelRedeem.addEventListener('click', () => {
+        redeemModal.style.display = 'none';
+    });
+
+    submitRedeemCode.addEventListener('click', () => {
+        const code = redeemCodeInput.value.toLowerCase().trim();
+        
+        // Check if user has already redeemed this code
+        if (redeemedCodes[currentUserProfile.username]?.includes(code)) {
+            redeemMessage.textContent = 'Code already redeemed!';
+            redeemMessage.style.color = '#ff0000';
+            return;
+        }
+
+        if (code === 'hammy') {
+            // Add code to redeemed codes
+            if (!redeemedCodes[currentUserProfile.username]) {
+                redeemedCodes[currentUserProfile.username] = [];
+            }
+            redeemedCodes[currentUserProfile.username].push(code);
+            localStorage.setItem('redeemedCodes', JSON.stringify(redeemedCodes));
+
+            // Update balance
+            currentUserProfile.totalBalance += 10000;
             saveUserProfile();
             updateUserStats();
 
-            redeemMessage.textContent = 'Congratulations! £10,000 has been added to your balance.';
-            redeemMessage.style.color = 'green';
-            redeemMessage.style.display = 'block';
+            redeemMessage.textContent = 'Successfully redeemed £10,000!';
+            redeemMessage.style.color = '#00ff00';
+            
+            setTimeout(() => {
+                redeemModal.style.display = 'none';
+            }, 2000);
         } else {
-            redeemMessage.textContent = 'Invalid code. Please try again.';
-            redeemMessage.style.color = 'red';
-            redeemMessage.style.display = 'block';
-        }
-    });
-
-    // Close modal when clicking outside of it
-    window.addEventListener('click', (event) => {
-        if (event.target === redeemModal) {
-            redeemModal.style.display = 'none';
+            redeemMessage.textContent = 'Invalid code!';
+            redeemMessage.style.color = '#ff0000';
         }
     });
 });

@@ -66,6 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Ensure currentUserProfile is defined
   let currentUserProfile = {};
+  let totalLost = 0;
+  let totalProfit = 0;
+  let totalBets = 0;
+  const PLAY_COST = 100; // Standard play cost
 
   // Initialize user profile
   const initializeUserProfile = () => {
@@ -74,7 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!isNaN(userIndex) && userProfiles[userIndex]) {
       currentUserProfile = userProfiles[userIndex];
+      // Initialize tracking variables from profile
+      totalLost = parseFloat(currentUserProfile.totalLosses) || 0;
+      totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+      totalBets = parseFloat(currentUserProfile.totalBets) || 0;
       updateUserBalanceDisplay();
+      console.log('Profile loaded:', { totalLost, totalProfit, totalBets });
     } else {
       alert("User not found. Redirecting to login.");
       window.location.href = "user-auth.html"; // Redirect to login if user not found
@@ -99,8 +108,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const deductPlayCost = (cost) => {
     if (currentUserProfile.totalBalance >= cost) {
       currentUserProfile.totalBalance -= cost;
+      totalBets += cost; // Track total bets
+      currentUserProfile.totalBets = totalBets;
+      
+      // Initially count as a loss
+      totalLost += cost;
+      currentUserProfile.totalLosses = totalLost;
+      
       saveUserProfile();
       updateUserBalanceDisplay();
+      console.log('Bet placed:', { cost, totalBets, totalLost });
       return true;
     } else {
       alert("Insufficient balance to play.");
@@ -114,8 +131,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const userIndex = parseInt(localStorage.getItem("currentUserIndex"), 10);
 
     if (!isNaN(userIndex) && userProfiles[userIndex]) {
+      currentUserProfile.totalLosses = totalLost;
+      currentUserProfile.totalProfit = totalProfit;
+      currentUserProfile.totalBets = totalBets;
       userProfiles[userIndex] = currentUserProfile;
       localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
+      
+      // Log updates for debugging
+      console.log('Profile Updated:', {
+          balance: currentUserProfile.totalBalance,
+          losses: totalLost,
+          profit: totalProfit,
+          bets: totalBets
+      });
     } else {
       console.error("Error: Unable to save user profile. User not found.");
     }
@@ -321,7 +349,19 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
         const winningEmoji = emojiSlots.find((slot) => slot.emoji === emojiA);
         const amountWon = winningEmoji ? winningEmoji.value : 0;
-        return amountWon; // Return the winning amount
+        if (amountWon > 0) {
+          totalProfit += amountWon;
+          totalLost -= PLAY_COST; // Remove the play cost from losses since player won
+          currentUserProfile.totalProfit = totalProfit;
+          currentUserProfile.totalLosses = totalLost;
+          console.log('Win recorded:', { amountWon, totalProfit, totalLost });
+          return amountWon;
+        } else {
+          const betAmount = 100; // Standard play cost
+          totalLost += betAmount;
+          currentUserProfile.totalLosses = totalLost;
+          return 0;
+        }
       }
     }
 
@@ -354,11 +394,15 @@ document.addEventListener("DOMContentLoaded", () => {
     resultDisplay.style.display = 'block'; // Ensure visibility
     resultDisplay.innerHTML = `
       <div style="font-size: 1.2em; margin-bottom: 10px;">
-        Congratulations! You won ${formatMoney(amountWon)}!
+        Congratulations! You won ${formatMoney(amountWon)}!<br>
+        Total Profit: ${formatMoney(totalProfit)}<br>
+        Total Bets: ${formatMoney(totalBets)}<br>
+        Total Losses: ${formatMoney(totalLost)}
       </div>
       <button class="restart-button" onclick="location.reload()">Play Again</button>
     `;
     resultDisplay.className = 'result-display show win';
+    saveUserProfile();
   };
 
   // Update displayNoMatchMessage function
@@ -366,11 +410,14 @@ document.addEventListener("DOMContentLoaded", () => {
     resultDisplay.style.display = 'block'; // Ensure visibility
     resultDisplay.innerHTML = `
       <div style="font-size: 1.2em; margin-bottom: 10px;">
-        No Match! Better luck next time.
+        No Match! Better luck next time.<br>
+        Total Losses: ${formatMoney(totalLost)}<br>
+        Total Bets: ${formatMoney(totalBets)}
       </div>
       <button class="restart-button" onclick="location.reload()">Play Again</button>
     `;
     resultDisplay.className = 'result-display show lose';
+    saveUserProfile();
   };
 
   // Update resetGame function

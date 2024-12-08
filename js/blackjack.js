@@ -379,12 +379,12 @@ function loadUserProfile() {
     }
 
     const currentUserProfile = userProfiles[userIndex];
+    // Load all values from profile
     totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
-
-    totalBalance = parseFloat(currentUserProfile.totalBalance);
-    if (isNaN(totalBalance)) {
-        totalBalance = 0;
-    }
+    totalLosses = parseFloat(currentUserProfile.totalLosses) || 0; // Make sure to load losses
+    totalBalance = parseFloat(currentUserProfile.totalBalance) || 0;
+    totalWins = parseInt(currentUserProfile.totalWins) || 0;
+    totalBets = parseFloat(currentUserProfile.totalBets) || 0;
 }
 
 function updateUserProfile() {
@@ -392,16 +392,18 @@ function updateUserProfile() {
     const userIndex = parseInt(localStorage.getItem("currentUserIndex"));
 
     if (!isNaN(userIndex) && userIndex >= 0 && userIndex < userProfiles.length) {
-        userProfiles[userIndex].totalProfit = totalProfit.toFixed(2);
-        userProfiles[userIndex].totalBalance = totalBalance.toFixed(2);
-        userProfiles[userIndex].totalWins = totalWins;
-        userProfiles[userIndex].totalLosses = totalLosses.toFixed(2);
-        userProfiles[userIndex].totalBets = totalBets.toFixed(2);
+        const currentProfile = userProfiles[userIndex];
+        userProfiles[userIndex] = {
+            ...currentProfile, // Preserve existing properties
+            totalProfit: totalProfit.toFixed(2),
+            totalBalance: totalBalance.toFixed(2),
+            totalWins: totalWins,
+            totalLosses: totalLosses.toFixed(2), // Save accumulated losses
+            totalBets: totalBets.toFixed(2)
+        };
 
         localStorage.setItem("userProfiles", JSON.stringify(userProfiles));
         updateStatisticsDisplay();
-    } else {
-        console.error("Invalid user index. Cannot update user profile.");
     }
 }
 
@@ -457,8 +459,9 @@ function dealInitialCards() {
     if (calculateHandValue(playerHand) === 21) {
         resultDisplay.textContent = "Blackjack! You Win!";
         totalWins += 1;
-        totalProfit += currentBet * 1.5; // Blackjack pays 1.5 times the bet
-        updateBalanceDisplay(currentBet * 2.5, true); // Add winnings to balance
+        const winnings = currentBet * 1.5; // Blackjack pays 1.5x
+        totalProfit += winnings; // Only add the winnings to profit
+        updateBalanceDisplay(currentBet + winnings, true); // Return bet + winnings
         updateStatisticsDisplay();
         updateUserProfile();
         gameInProgress = false;
@@ -510,43 +513,31 @@ function getCardName(card) {
 
 // When the player wins
 function announceWinner(winner) {
-    if (winner === 'player') {
-        const winAmount = currentBet * 2;
-        currentUserProfile.totalBalance += winAmount;
-        currentUserProfile.totalProfit += (winAmount - currentBet);
-        updateBalance(userIndex, winAmount); // Add winnings
-        updateProfit(userIndex, winAmount - currentBet); // Update profit
-    } else if (winner === 'dealer') {
-        currentUserProfile.totalProfit -= currentBet;
-        updateProfit(userIndex, -currentBet); // Update profit
-    } else {
-        currentUserProfile.totalBalance += currentBet; // Return bet
-        updateBalance(userIndex, currentBet);
-    }
-    saveUserProfile();
+    console.log(`Before game result - Total Losses: £${totalLosses}`);
     
     if (winner === 'player') {
-        resultDisplay.textContent = "You Win!";
+        const winAmount = currentBet;
         totalWins += 1;
-        totalProfit += currentBet;
-        updateBalanceDisplay(currentBet * 2, true); // Add winnings to balance
-        console.log(`Result: Player Wins`);
+        totalProfit += winAmount;
+        updateBalanceDisplay(currentBet * 2, true);
+        resultDisplay.textContent = "You Win!";
     } else if (winner === 'dealer') {
+        // Track losses separately from balance updates
+        const lossAmount = parseFloat(currentBet);
+        totalLosses += lossAmount; // Add to accumulated losses
         resultDisplay.textContent = "Dealer Wins!";
-        totalLosses += currentBet;
-        totalProfit -= currentBet;
-        console.log(`Result: Dealer Wins`);
+        console.log(`Loss added: £${lossAmount}, New total losses: £${totalLosses}`);
     } else {
+        updateBalanceDisplay(currentBet, true);
         resultDisplay.textContent = "It's a Tie!";
-        updateBalanceDisplay(currentBet, true); // Return the bet to the player
-        console.log(`Result: It's a Tie`);
     }
 
-    console.log(`After Game - Balance: £${totalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2 })}`);
-
-    currentBet = 0;
-    updateStatisticsDisplay();
+    // Always update profile after game result
     updateUserProfile();
+    updateStatisticsDisplay();
+    
+    // Reset game state
+    currentBet = 0;
     gameInProgress = false;
 
     playButton.classList.add('d-none');

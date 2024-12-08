@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get current user profile
     let currentUserProfile = userProfiles[userIndex];
+    totalLost = parseFloat(currentUserProfile.totalLosses) || 0; // Initialize from profile
+    totalProfit = parseFloat(currentUserProfile.totalProfit) || 0;
+    totalBet = parseFloat(currentUserProfile.totalBets) || 0;
 
     const betInput = document.getElementById('bet-amount');
     const bet100Button = document.getElementById('bet-100-button');
@@ -152,6 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         totalLostDisplay.textContent = `£${totalLost.toFixed(2)}`;
         totalBetDisplay.textContent = `£${totalBet.toFixed(2)}`;
         highestCrashDisplay.textContent = `${highestCrash.toFixed(2)}x`;
+        
+        // Log stats for debugging
+        console.log('Stats Update:', {
+            profit: totalProfit,
+            losses: totalLost,
+            bets: totalBet,
+            highestCrash: highestCrash
+        });
     }
 
     // Update watchOnlyButton event listener to handle both watch-only and skip-to-crash functionality
@@ -215,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentUserProfile.totalBalance -= betAmount;
         totalBet += betAmount;
+        currentUserProfile.totalBets = (parseFloat(currentUserProfile.totalBets) || 0) + betAmount;
         updateBalance();
         hideAllControls();
         cashOutButton.classList.remove('d-none');
@@ -286,39 +298,44 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear bet input
         betInput.value = '';
 
-        if (!cashedOut) {
-            totalLost += betAmount; // Track money lost only if not cashed out
-            // Update user profile with loss
-            currentUserProfile.totalLosses = (currentUserProfile.totalLosses || 0) + betAmount;
-        } else {
-            // Update user profile with profit
-            currentUserProfile.totalProfits = (currentUserProfile.totalProfits || 0) + profit;
+        if (!cashedOut && !isWatchOnly) {
+            // Always accumulate losses when player loses
+            totalLost += betAmount;
+            currentUserProfile.totalLosses = (parseFloat(currentUserProfile.totalLosses) || 0) + betAmount;
+            console.log(`Loss recorded: £${betAmount}, Total losses: £${currentUserProfile.totalLosses}`);
+        }
+
+        if (cashedOut) {
+            // Handle win
+            totalProfit += profit;
+            currentUserProfile.totalProfit = (parseFloat(currentUserProfile.totalProfit) || 0) + profit;
+            console.log(`Profit recorded: £${profit}, Total profit: £${currentUserProfile.totalProfit}`);
         }
 
         // Update total games played
         currentUserProfile.totalGames = (currentUserProfile.totalGames || 0) + 1;
-
-        // Save updated profile to localStorage
+        currentUserProfile.totalBets = parseFloat(totalBet.toFixed(2));
         userProfiles[userIndex] = currentUserProfile;
         localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
 
-        // Rest of existing endGame code...
+        // Update display
         if (cashedOut) {
             multiplierDisplay.style.color = "green";
             multiplierDisplay.innerHTML = `You cashed out at x${multiplier.toFixed(2)}!<br>Profit Made: £${profit.toFixed(2)}`;
-        } else if (multiplier <= 1.0) { // Handle crash at x1.00
+        } else if (!isWatchOnly) {
             multiplierDisplay.style.color = "red";
-            multiplierDisplay.textContent = `The rocket crashed instantly at x${crashMultiplier.toFixed(2)}!`;
-        } else { // Handle regular crash
-            multiplierDisplay.style.color = "red";
-            multiplierDisplay.textContent = `The rocket crashed at x${multiplier.toFixed(2)}!`;
+            multiplierDisplay.textContent = `The rocket crashed at x${crashMultiplier.toFixed(2)}!`;
         }
 
+        // Update highest crash if applicable
         if (multiplier > highestCrash) {
             highestCrash = multiplier;
         }
 
+        // Update UI elements
         updatePastCrashes(crashMultiplier);
+        updateStatsDisplay();
+        
         if (!isWatchOnly) {
             showAllControls();
         } else {
@@ -326,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
             watchOnlyButton.textContent = 'Watch Only';
             watchOnlyButton.classList.remove('primary');
             watchOnlyButton.classList.add('secondary');
-            returnButton.disabled = false; // Enable the return button when the game ends
+            returnButton.disabled = false;
         }
     }
 

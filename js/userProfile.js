@@ -13,12 +13,21 @@ function getCurrentUserProfile() {
 function saveUserProfile(currentUserProfile) {
     let userProfiles = JSON.parse(localStorage.getItem('userProfiles')) || [];
     let userIndex = parseInt(localStorage.getItem('currentUserIndex'), 10);
-    if (isNaN(userIndex) || userIndex < 0 || userIndex >= userProfiles.length) {
-        console.error('Invalid user index.');
-        return;
+    
+    if (userIndex >= 0 && userIndex < userProfiles.length) {
+        let existingProfile = userProfiles[userIndex];
+        
+        // Ensure we don't overwrite stats accidentally
+        userProfiles[userIndex] = {
+            ...existingProfile,
+            currentBalance: Number((Number(currentUserProfile.currentBalance)).toFixed(2)),
+            totalProfit: Number((Number(existingProfile.totalProfit || 0)).toFixed(2)),
+            totalLosses: Number((Number(existingProfile.totalLosses || 0)).toFixed(2)),
+            totalWins: Number(existingProfile.totalWins || 0)
+        };
+
+        localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
     }
-    userProfiles[userIndex] = currentUserProfile;
-    localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
 }
 
 // Add functions to update balance and profit
@@ -28,18 +37,24 @@ function updateBalance(amount) {
     
     if (userIndex >= 0 && userIndex < userProfiles.length) {
         let profile = userProfiles[userIndex];
-        profile.currentBalance = Number(profile.currentBalance || 0) + amount;
         
-        // Update related stats
+        // Update current balance
+        profile.currentBalance = Number((Number(profile.currentBalance || 0) + amount).toFixed(2));
+        
+        if (amount < 0) {
+            // Don't modify totalLosses here - let the game logic handle it
+            // Instead, just track the balance change
+            profile.totalBets = Number((Number(profile.totalBets || 0) + Math.abs(amount)).toFixed(2));
+        }
+        
         if (amount > 0) {
-            profile.totalWins = Number(profile.totalWins || 0) + 1;
-            profile.totalProfit = Math.max(0, (Number(profile.totalProfit || 0) + amount));
-        } else {
-            profile.totalLosses = Number(profile.totalLosses || 0) + Math.abs(amount);
+            profile.totalWins = (Number(profile.totalWins || 0) + 1);
+            profile.totalProfit = Number((Number(profile.totalProfit || 0) + amount).toFixed(2));
         }
         
         localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
         triggerProfileUpdate();
+        
         return profile;
     }
     return null;
